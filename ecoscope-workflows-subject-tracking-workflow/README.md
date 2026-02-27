@@ -5,8 +5,8 @@
 
 ```yaml
 # fingerprint:
-artifacts_sha256_basic: 4818432c3a774bc485473787534d366316ee92709b744fe814911d4dd974c82c
-artifacts_sha256_strict: f5d15fc581240cc6d98e025b9db81b73bde767b467d415e45cd72832d53ecdf4
+artifacts_sha256_basic: c05debf16293676a946118e546c5259038bf3866c19ba33ca7d4b2cb2caebb76
+artifacts_sha256_strict: b23ce36a2aeed42e14602ceb7b7ac94136c6362f5d552d423ebce828386035ef
 installed_requirements:
 - channel: https://repo.prefix.dev/ecoscope-workflows/
   name: ecoscope-workflows-core
@@ -27,10 +27,10 @@ installed_requirements:
   name: ecoscope-workflows-ext-mep
   version: {version: ==0.0.8}
 params_sha256: f911408ed16a7d281a721f6440ab1d8fd0347738a570da12ad1bf9c5a0f5d23e
-spec_sha256: ae5b8705bbdfd3c375084410fa2af34181abb74836070311a0635f853b257ff7
+spec_sha256: 1528b4a71dbdbec51fad55497772dacb8a8e197bd016b2cda7a9a1f898c54505
 
 ```
 
-# ecoscope-workflows-individual-subject-tracking-report-workflow
+# ecoscope-workflows-subject-tracking-workflow
 
 ![](graph.png)

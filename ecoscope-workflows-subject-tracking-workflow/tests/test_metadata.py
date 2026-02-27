@@ -5,12 +5,10 @@ from unittest.mock import patch
 
 import pydantic
 import pytest
-from ecoscope_workflows_individual_subject_tracking_report_workflow.formdata import (
-    FormData,
-)
-from ecoscope_workflows_individual_subject_tracking_report_workflow.params import Params
 from ecoscope_workflows_runner.app import app
 from ecoscope_workflows_runner.testing import Case
+from ecoscope_workflows_subject_tracking_workflow.formdata import FormData
+from ecoscope_workflows_subject_tracking_workflow.params import Params
 from fastapi.testclient import TestClient
 
 

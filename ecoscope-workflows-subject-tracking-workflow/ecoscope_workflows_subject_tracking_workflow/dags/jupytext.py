@@ -4,7 +4,7 @@
 # ruff: noqa: E402
 
 # %% [markdown]
-# # Individual Subject Tracking Report
+# # Subject Tracking
 # TODO: top level description
 
 # %% [markdown]
@@ -716,14 +716,14 @@ retrieve_subjects_df = (
         include_inactive=True,
         bbox=None,
         subject_group_id=None,
-        subject_group_name=None,
+        subject_group_name=subject_group_var,
         name=None,
         updated_since=None,
         updated_until=None,
         tracks=None,
         ids=None,
         max_ids_per_request=50,
-        raise_on_empty=True,
+        raise_on_empty=False,
         **retrieve_subjects_df_params,
     )
     .call()

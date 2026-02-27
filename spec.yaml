@@ -1,4 +1,4 @@
-id: individual_subject_tracking_report
+id: subject_tracking
 requirements:
   - name: ecoscope-workflows-core
     version: "0.22.9.*"
@@ -206,14 +206,14 @@ workflow:
       include_inactive: true 
       bbox: null 
       subject_group_id: null 
-      subject_group_name: null #${{ workflow.subject_group_var.return }}
+      subject_group_name: ${{ workflow.subject_group_var.return }}
       name: null 
       updated_since: null
       updated_until: null 
       tracks: null 
       ids: null 
       max_ids_per_request: 50
-      raise_on_empty: true 
+      raise_on_empty: false 
 
   - name: Normalize subject information 
     id: normalize_subject_info 
