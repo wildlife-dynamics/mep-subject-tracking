@@ -14,8 +14,6 @@ all-grouper:
       time_format: '%d %b %Y %H:%M:%S'
       since: '2014-08-20T21:00:00.000Z'
       until: '2015-02-28T21:00:00.000Z'
-    groupers:
-      groupers: []
     configure_base_maps:
       base_maps:
         - url: >-
@@ -59,9 +57,6 @@ value-grouper:
       time_format: '%d %b %Y %H:%M:%S'
       since: '2014-08-20T21:00:00.000Z'
       until: '2015-02-28T21:00:00.000Z'
-    groupers:
-      groupers:
-        - index_name: subject_name
     configure_base_maps:
       base_maps:
         - url: >-
