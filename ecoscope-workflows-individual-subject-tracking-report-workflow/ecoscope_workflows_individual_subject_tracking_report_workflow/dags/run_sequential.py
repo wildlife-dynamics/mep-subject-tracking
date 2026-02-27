@@ -512,7 +512,7 @@ def main(params: Params):
             include_inactive=True,
             bbox=None,
             subject_group_id=None,
-            subject_group_name=subject_group_var,
+            subject_group_name=None,
             name=None,
             updated_since=None,
             updated_until=None,
