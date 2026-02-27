@@ -206,7 +206,7 @@ workflow:
       include_inactive: true 
       bbox: null 
       subject_group_id: null 
-      subject_group_name: ${{ workflow.subject_group_var.return }}
+      subject_group_name: null #${{ workflow.subject_group_var.return }}
       name: null 
       updated_since: null
       updated_until: null 

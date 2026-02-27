@@ -27,51 +27,7 @@ all-grouper:
       data_source:
         name: ecoscope_poc
     subject_group_var:
-      var: elephants
-    retrieve_ldx_db:
-      input_method:
-        url: >-
-          https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0
-    custom_trajs_filter:
-      min_length_meters: 0.001
-      max_length_meters: 5000
-      min_time_secs: 1
-      max_time_secs: 21600
-      min_speed_kmhr: 0.01
-      max_speed_kmhr: 9
-    gdf_bounding_extent:
-      expansion_factor: 1.05
-
-value-grouper:
-  name: Value Grouper
-  description: A demonstration of a workflow grouped by a value.
-  params:
-    workflow_details:
-      description: ''
-      name: custom_mep_dev
-    time_range:
-      timezone:
-        label: UTC
-        tzCode: UTC
-        name: UTC
-        utc: '+03:00'
-      time_format: '%d %b %Y %H:%M:%S'
-      since: '2014-08-20T21:00:00.000Z'
-      until: '2015-02-28T21:00:00.000Z'
-    configure_base_maps:
-      base_maps:
-        - url: >-
-            https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}
-          opacity: 1
-          max_zoom: 20
-    er_client_name:
-      data_source:
-        name: mep_dev
-    gee_project_name:
-      data_source:
-        name: ecoscope_poc
-    subject_group_var:
-      var: elephants
+      var: Elephants
     retrieve_ldx_db:
       input_method:
         url: >-
