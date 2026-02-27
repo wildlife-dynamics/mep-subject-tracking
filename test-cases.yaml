@@ -30,7 +30,8 @@ all-grouper:
       var: elephants
     retrieve_ldx_db:
       input_method:
-        file_path: /Users/tevintemu/Desktop/Ecoscope/shapefiles/landDx.gpkg
+        url: >-
+          https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0
     custom_trajs_filter:
       min_length_meters: 0.001
       max_length_meters: 5000
@@ -73,7 +74,8 @@ value-grouper:
       var: elephants
     retrieve_ldx_db:
       input_method:
-        file_path: /Users/tevintemu/Desktop/Ecoscope/shapefiles/landDx.gpkg
+        url: >-
+          https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0
     custom_trajs_filter:
       min_length_meters: 0.001
       max_length_meters: 5000
