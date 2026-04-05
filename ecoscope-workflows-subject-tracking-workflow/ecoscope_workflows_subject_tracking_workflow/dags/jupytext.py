@@ -60,6 +60,9 @@ from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map
 from ecoscope_workflows_ext_custom.tasks.results import (
     set_base_maps_pydeck as set_base_maps_pydeck,
 )
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     filter_row_values as filter_row_values,
 )
@@ -391,7 +394,7 @@ subject_group_var = (
 
 
 # %% [markdown]
-# ## Load landDx database
+# ##
 
 # %%
 # parameters
@@ -2129,6 +2132,34 @@ generate_mcp = (
 
 
 # %% [markdown]
+# ## Reproject etd to wgs84
+
+# %%
+# parameters
+
+reproject_etd_params = dict()
+
+# %%
+# call the task
+
+
+reproject_etd = (
+    reproject_gdf.set_task_instance_id("reproject_etd")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_etd_params)
+    .mapvalues(argnames=["gdf"], argvalues=generate_etd)
+)
+
+
+# %% [markdown]
 # ## Apply colormap to home range percentiles
 
 # %%
@@ -2157,7 +2188,7 @@ apply_etd_colormap = (
         colormap="RdYlGn",
         **apply_etd_colormap_params,
     )
-    .mapvalues(argnames=["df"], argvalues=generate_etd)
+    .mapvalues(argnames=["df"], argvalues=reproject_etd)
 )
 
 
@@ -2500,6 +2531,34 @@ convert_season_to_string = (
 
 
 # %% [markdown]
+# ## Reproject seasonal home range gdf to wgs84
+
+# %%
+# parameters
+
+reproject_seasonal_home_range_params = dict()
+
+# %%
+# call the task
+
+
+reproject_seasonal_home_range = (
+    reproject_gdf.set_task_instance_id("reproject_seasonal_home_range")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_seasonal_home_range_params)
+    .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+)
+
+
+# %% [markdown]
 # ## Apply colormap to seasonal home range
 
 # %%
@@ -2528,7 +2587,7 @@ apply_seasonal_colormap = (
         colormap=["#00bfff", "#ff7f50"],
         **apply_seasonal_colormap_params,
     )
-    .mapvalues(argnames=["df"], argvalues=convert_season_to_string)
+    .mapvalues(argnames=["df"], argvalues=reproject_seasonal_home_range)
 )
 
 

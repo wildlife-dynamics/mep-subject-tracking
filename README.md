@@ -1,139 +1,227 @@
-# Individual Subject Tracking Report
+# MEP Subject Tracking — User Guide
 
-**Workflow ID:** `individual_subject_tracking_report`
+This guide walks you through configuring and running the MEP Subject Tracking workflow, which ingests GPS telemetry from EarthRanger, derives movement ecology metrics via Google Earth Engine, and produces a comprehensive per-subject tracking report for collared wildlife in the Mara ecosystem.
+
+---
 
 ## Overview
 
-The **Individual Subject Tracking Report** is an automated ecoscope workflow that generates comprehensive per-subject tracking reports for collared wildlife. It connects to EarthRanger to retrieve telemetry observations and subject metadata, performs spatial and statistical analysis, and outputs a fully assembled Word document (mapbook) alongside an interactive dashboard — one report section per individual subject.
+The workflow delivers, for each subject in the selected group:
 
-The workflow is designed primarily for use with elephant tracking programs and has been built with MEP (Mara Elephant Project) data structures in mind.
-
----
-
-## Inputs
-
-The following parameters are required to run this workflow:
-
-| Parameter | Description | Default |
-|---|---|---|
-| **Subject Group Name** | The EarthRanger subject group to analyze (e.g. `"Elephants"`) | `Elephants` |
-| **Time Range** | Analysis start and end date | — |
-| **EarthRanger Connection** | EarthRanger instance credentials | — |
-| **Earth Engine Project** | Google Earth Engine project name | — |
-| **Base Maps** | Pydeck base map tile configuration | — |
-
-> **Note:** Grouping is fixed to `subject_name`. Each subject in the specified group is processed individually.
+- **3 maps** — speed map, ETD home range map, and seasonal home range map with MCP overlay
+- **4 time-series plots** — Net Square Displacement (NSD), speed, collar event timeline, and MCP asymptote
+- **10 dashboard metrics** — protected area use, agricultural land use, Kenya use, unprotected use, MCP area, ETD area, distance travelled, max displacement, and night/day ratio
+- **4 CSV tables** — subject info, movement stats, occupancy, and seasonal windows
+- A **Word mapbook** — cover page plus one fully populated section per subject
 
 ---
 
-## What the Workflow Does
+## Prerequisites
 
-### 1. Setup & Connections
-- Sets workflow metadata and analysis time range.
-- Establishes connections to **EarthRanger** (telemetry & events) and **Google Earth Engine** (seasonal analysis).
-- Loads the **LandDx** geospatial database, filtering to Community Conservancies, National Reserves, and National Parks. This provides the land-use base layer overlaid on all maps.
+Before running the workflow, ensure you have:
 
-### 2. Subject & Observation Data
-- Retrieves subject metadata from EarthRanger for the chosen subject group (including inactive subjects).
-- Normalizes and renames subject fields (sex, DOB, bio, region, photo, etc.).
-- Fetches subject GPS observations for the analysis period and processes them into **relocations**.
-- Computes **subject maturity** (based on 6-month duration threshold).
-
-### 3. Events
-- Retrieves collaring-related events from EarthRanger for the analysis period. The event types monitored (`mep_collar_check`, `mep_collaring`, `mep_source_failure`) are specific to the MEP programme and reflect the collar management events configured in that EarthRanger instance.
-
-### 4. Trajectories
-- Converts relocations to **trajectories** using a custom segment filter.
-- Classifies trajectory segments into **speed bins** (6 equal-interval classes, km/h).
-
-### 5. Maps Generated (per subject)
-
-| Map | Description |
-|---|---|
-| **Speed Map** | Path layer coloured by speed bins (green → red), overlaid on land-use boundaries |
-| **Home Range Map** | Elliptical Time Density (ETD) at multiple percentiles (50–99.9%), coloured RdYlGn |
-| **Seasonal Home Range Map** | ETD calculated per season (wet/dry), overlaid with MCP boundary |
-
-All maps are rendered as interactive HTML files and then screenshot to **PNG** for inclusion in the Word report.
-
-### 6. Plots Generated (per subject)
-
-| Plot | Description |
-|---|---|
-| **Net Square Displacement (NSD)** | Seasonal NSD over the analysis period |
-| **Speed Plot** | Seasonal speed distribution |
-| **Collared Events Plot** | Timeline of collar-related events |
-| **MCP Asymptote Plot** | Minimum Convex Polygon area growth curve |
-
-### 7. Statistics & Occupancy (per subject)
-
-The following metrics are computed and displayed as single-value dashboard widgets:
-
-**Movement Statistics**
-- MCP Area (km²)
-- ETD Area (km²)
-- Distance Travelled (km²)
-- Max Displacement (km²)
-- Night/Day Ratio
-
-**Land Use Occupancy** (% of home range — derived from the LandDx shapefile)
-- National Protected Area use
-- Community Protected Area use
-- Agricultural land use (crop raid %)
-- Kenya use
-- Unprotected use
-
-> These occupancy values are calculated by spatially intersecting each subject's ETD home range with the LandDx polygon layer. The categories and boundaries are entirely defined by the LandDx dataset and are tied directly to the report output.
-
-### 8. Word Report (Mapbook)
-- Downloads a **cover page template** and **subject section template** from Dropbox.
-- Assembles one section per subject containing: profile photo, subject bio, speed map, home range map, seasonal home range map, NSD plot, speed plot, collared events plot, MCP plot, stats table, and occupancy table.
-- Merges all sections with the cover page into a single `.docx` mapbook.
-
-### 9. Dashboard
-An interactive **Ecoscope dashboard** is generated containing all single-value widgets, maps, and plots — grouped by subject.
+- Access to an **EarthRanger** instance with subject group observations and MEP collar events logged for the analysis period
+- Access to a **Google Earth Engine** service account with a private key in JSON format
 
 ---
 
-## Outputs
+## Step-by-Step Configuration
 
-| Output | Format | Description |
-|---|---|---|
-| `mep_context.docx` | DOCX | Report cover page |
-| `*_subject_section.docx` | DOCX | Per-subject report section |
-| **Overall report** | DOCX | Final assembled report (cover + all sections) |
-| `*_speedmap.html` / `.png` | HTML + PNG | Speed map per subject |
-| `*_homerange.html` / `.png` | HTML + PNG | Home range map per subject |
-| `*_seasonal_home_range.html` / `.png` | HTML + PNG | Seasonal home range map per subject |
-| `*_nsd_seasonal_plot.html` / `.png` | HTML + PNG | NSD plot per subject |
-| `*_speed_seasonal_plot.html` / `.png` | HTML + PNG | Speed plot per subject |
-| `*_collared_subject_plot.html` / `.png` | HTML + PNG | Collared events plot per subject |
-| `*_mcp_asymptote_plot.html` / `.png` | HTML + PNG | MCP asymptote plot per subject |
-| `*_subject_info.csv` | CSV | Subject metadata |
-| `*_subject_stats.csv` | CSV | Movement statistics |
-| `*_subject_occupancy.csv` | CSV | Land use occupancy |
-| `*_seasonal_windows.csv` | CSV | Seasonal window definitions |
-| `*_profile.png` | PNG | Subject profile photo |
-| Dashboard | Interactive | Ecoscope widget dashboard |
+### Step 1 — Add the Workflow Template
 
-All outputs are written to `$ECOSCOPE_WORKFLOWS_RESULTS`.
+In the workflow runner, go to **Workflow Templates** and click **Add Workflow Template**. Paste the GitHub repository URL into the **Github Link** field:
+
+```
+https://github.com/wildlife-dynamics/mep-subject-tracking.git
+```
+
+Then click **Add Template**.
+
+![Add Workflow Template](data/screenshots/add_workflow.png)
 
 ---
 
-## Skip Conditions
+### Step 2 — Configure Connection
 
-Tasks throughout the workflow are configured with `skipif` conditions. A task will be skipped if:
-- **`any_is_empty_df`** — any upstream dataframe is empty (e.g., no observations for that subject).
-- **`any_dependency_skipped`** — an upstream task was itself skipped.
+Navigate to **Data Sources** and click **Connect**. A dialog will appear prompting you to **Select Data Source Type**. This workflow requires two connections:
 
-This ensures the workflow gracefully handles subjects with no data without failing the entire run.
+| Data Source Type | Purpose |
+|-----------------|---------|
+| **EarthRanger** | Pull subject group observations, metadata, and MEP collar events |
+| **Google Earth Engine** | Compute NDVI-based wet/dry seasonal windows per subject home range |
+
+Select **EarthRanger** first and complete Step 3, then repeat and select **Google Earth Engine** for Step 4.
+
+![Configure Connection](data/screenshots/configure_connection.png)
 
 ---
 
-## Notes
+### Step 3 — Add an EarthRanger Connection
 
-- **LandDx database:** This workflow exclusively uses the LandDx geodatabase for land-use context. The database path is resolved from `$ECOSCOPE_WORKFLOWS_RESULTS`.
-- **Seasonal analysis:** Season windows (wet/dry) are derived from Google Earth Engine NDVI data scoped to each subject's home range.
-- **Collaring events:** Only events of types `mep_collar_check`, `mep_collaring`, and `mep_source_failure` are retrieved and visualized.
-- **Report templates:** Cover page and section templates are fetched from Dropbox on each run. Set `overwrite_existing: false` to cache them locally and avoid re-downloading.
-- **Screenshot rendering:** Map HTML files are rendered to PNG using a headless browser. Timeout is set to 40 seconds per map to allow full tile loading.
+After selecting **EarthRanger** in Step 2, fill in the connection form:
+
+- **Data Source Name** — a label to identify this connection
+- **EarthRanger URL** — your instance URL (e.g. `your-site.pamdas.org`)
+- **EarthRanger Username** and **EarthRanger Password**
+
+> Credentials are not validated at setup time. Any authentication errors will appear when the workflow runs.
+
+Click **Connect** to save.
+
+![EarthRanger Connection](data/screenshots/er_connection.png)
+
+---
+
+### Step 4 — Add a Google Earth Engine Connection
+
+After selecting **Google Earth Engine** in Step 2, fill in the connection form:
+
+- **Data Source Name** — a label to identify this connection
+- **Private Key** — click **Browse** to select your GEE service account private key file (JSON format)
+
+> To generate a private key, follow the instructions in the [Setup Guide](https://developers.google.com/earth-engine/guides/service_account). The key is stored encrypted and used only to authenticate with Google Earth Engine.
+
+Click **Connect** to save.
+
+![Google Earth Engine Connection](data/screenshots/gee_connection.png)
+
+---
+
+### Step 5 — Select the Workflow
+
+After the template is added, it appears in the **Workflow Templates** list as **mep-subject-tracking**. Click it to open the workflow configuration form.
+
+> The card may show **Initializing…** briefly while the environment is set up.
+
+![Select Workflow Template](data/screenshots/select_workflow.png)
+
+---
+
+### Step 6 — Set Workflow Details and Analysis Time Range
+
+The configuration form opens with two sections at the top.
+
+**Set workflow details**
+
+| Field | Description |
+|-------|-------------|
+| Workflow Name | A short name to identify this run |
+| Workflow Description | Optional notes (e.g. subject group, site, or reporting period) |
+
+**Define analysis time range**
+
+| Field | Description |
+|-------|-------------|
+| Timezone | Select the local timezone (e.g. `Africa/Nairobi UTC+03:00`) |
+| Since | Start date and time of the analysis period |
+| Until | End date and time of the analysis period |
+
+All GPS relocations, collar events, and GEE seasonal windows are fetched within this window.
+
+![Set Workflow Details and Analysis Time Range](data/screenshots/set_workflow_details_time_range.png)
+
+---
+
+### Step 7 — Connect to EarthRanger, Connect to Earth Engine, Set Subject Group, and Load LandDx Database
+
+Scroll down to configure the next four sections.
+
+**Connect to earth ranger**
+
+Select the EarthRanger data source configured in Step 3 from the **Data Source** dropdown (e.g. `Mara Elephant Project`).
+
+**Connect to earth engine**
+
+Select the Google Earth Engine data source configured in Step 4 from the **Data Source** dropdown.
+
+**Subject Group**
+
+Enter the name of the EarthRanger subject group to analyse in the **Subject Group Name** field (default: `Elephants`). Each subject in the group will be processed individually.
+
+**Load landDx database**
+
+Choose how to provide the LandDx GeoPackage used for land-use occupancy analysis:
+
+| Input Method | When to use |
+|-------------|-------------|
+| **Download from URL** | Use if you do not have a local copy — paste the Dropbox URL below |
+| **Local path** | Use if you already have `landDx.gpkg` on the machine running the workflow |
+
+If downloading, paste the following URL into the **URL** field:
+
+```
+https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0
+```
+
+![Connect to EarthRanger, Earth Engine, Subject Group, and Load LandDx](data/screenshots/connect_to_er_ee_set_subject_group_load_ldx.png)
+
+---
+
+### Step 8 — Trajectory Segment Filter and Zoom to GDF Extent
+
+Scroll down to configure the final two sections.
+
+**Trajectory Segment Filter**
+
+These thresholds control how raw GPS fixes are joined into trajectory segments. Segments that fall outside the limits are broken at that point, preventing implausible long-distance jumps from being included.
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Min Length Meters | — | Minimum segment length to retain (leave blank to skip) |
+| Max Length Meters | 5000 | Maximum segment length in metres |
+| Min Time Secs | — | Minimum time between fixes (leave blank to skip) |
+| Max Time Secs | 17340 | Maximum time between consecutive fixes in seconds (~4.8 hours) |
+| Min Speed Kmhr | -0.01 | Minimum speed threshold (slightly negative to allow rounding errors) |
+| Max Speed Kmhr | 9 | Maximum plausible speed in km/h |
+
+**Zoom to gdf extent**
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Expansion Factor | 1.25 | Factor to expand the bounding box around each subject's data extent (e.g. 1.25 = 25% padding) |
+
+Once all parameters are set, click **Submit**.
+
+![Trajectory Segment Filter and Zoom to GDF Extent](data/screenshots/trajsegfilter_zoom_to_extent.png)
+
+---
+
+## Running the Workflow
+
+Once submitted, the runner will:
+
+1. Load the LandDx database and create land-use styled map layers.
+2. Fetch subject metadata and GPS observations from EarthRanger for the specified time range and subject group.
+3. Fetch MEP collar events (`mep_collar_check`, `mep_collaring`, `mep_source_failure`).
+4. Compute subject maturity (6-month threshold) and split all data by subject name.
+5. Convert relocations to trajectories using the configured segment filter; classify speed into 6 bins.
+6. Compute ETD home range and seasonal windows via Google Earth Engine per subject.
+7. Generate speed map, home range map, and seasonal home range map per subject.
+8. Generate NSD, speed, collar event, and MCP asymptote plots per subject.
+9. Compute movement statistics and land-use occupancy per subject.
+10. Download Word report templates from Dropbox and populate one section per subject.
+11. Merge all sections with the cover page into a single Word mapbook.
+12. Save all outputs to the directory specified by `ECOSCOPE_WORKFLOWS_RESULTS`.
+
+---
+
+## Output Files
+
+All outputs are written to `$ECOSCOPE_WORKFLOWS_RESULTS/`. Files marked with `<subject>` are produced once per subject in the group.
+
+| File | Description |
+|------|-------------|
+| `<subject>_speedmap.html` / `.png` | Speed map — path coloured by 6-bin speed classification |
+| `<subject>_homerange.html` / `.png` | ETD home range map — percentile contours 50–99.9th |
+| `<subject>_seasonal_home_range.html` / `.png` | Seasonal home range map with MCP outline overlay |
+| `<subject>_nsd_seasonal_plot.html` / `.png` | Net Square Displacement time-series with season bands |
+| `<subject>_speed_seasonal_plot.html` / `.png` | Speed time-series with season bands |
+| `<subject>_collared_subject_plot.html` / `.png` | Collar event timeline plot |
+| `<subject>_mcp_asymptote_plot.html` / `.png` | MCP area growth curve |
+| `<subject>_subject_info.csv` | Subject metadata (name, sex, DOB, status, region, etc.) |
+| `<subject>_subject_stats.csv` | Movement stats: MCP, ETD, distance, max displacement, night/day ratio |
+| `<subject>_subject_occupancy.csv` | Land-use occupancy percentages by category |
+| `<subject>_seasonal_windows.csv` | GEE-derived wet/dry season date windows |
+| `<subject>_profile.png` | Subject profile photo from EarthRanger |
+| `mep_context.docx` | Report cover page (subject count, report period) |
+| `<merged_mapbook>.docx` | Final merged Word mapbook (cover + all subject sections) |

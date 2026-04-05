@@ -332,7 +332,7 @@
         "input_method"
       ],
       "type": "object",
-      "title": "Load landDx database"
+      "title": ""
     },
     "custom_trajs_filter": {
       "additionalProperties": false,

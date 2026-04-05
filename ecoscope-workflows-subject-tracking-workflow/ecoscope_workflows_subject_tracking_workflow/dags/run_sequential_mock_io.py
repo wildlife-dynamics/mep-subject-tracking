@@ -130,6 +130,9 @@ from ecoscope_workflows_ext_custom.tasks.io import html_to_png as html_to_png
 from ecoscope_workflows_ext_custom.tasks.results import (
     create_geojson_layer as create_geojson_layer,
 )
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     to_quantity as to_quantity,
 )
@@ -1469,6 +1472,22 @@ def main(params: Params):
         .mapvalues(argnames=["gdf"], argvalues=split_traj_by_group)
     )
 
+    reproject_etd = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_etd")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(target_crs="EPSG:4326", **(params_dict.get("reproject_etd") or {}))
+        .mapvalues(argnames=["gdf"], argvalues=generate_etd)
+    )
+
     apply_etd_colormap = (
         apply_color_map.validate()
         .set_task_instance_id("apply_etd_colormap")
@@ -1487,7 +1506,7 @@ def main(params: Params):
             colormap="RdYlGn",
             **(params_dict.get("apply_etd_colormap") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=generate_etd)
+        .mapvalues(argnames=["df"], argvalues=reproject_etd)
     )
 
     generate_home_range_layers = (
@@ -1713,6 +1732,25 @@ def main(params: Params):
         .mapvalues(argnames=["df"], argvalues=seasonal_home_range)
     )
 
+    reproject_seasonal_home_range = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_seasonal_home_range")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            target_crs="EPSG:4326",
+            **(params_dict.get("reproject_seasonal_home_range") or {}),
+        )
+        .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+    )
+
     apply_seasonal_colormap = (
         apply_color_map.validate()
         .set_task_instance_id("apply_seasonal_colormap")
@@ -1731,7 +1769,7 @@ def main(params: Params):
             colormap=["#00bfff", "#ff7f50"],
             **(params_dict.get("apply_seasonal_colormap") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=convert_season_to_string)
+        .mapvalues(argnames=["df"], argvalues=reproject_seasonal_home_range)
     )
 
     generate_season_layers = (

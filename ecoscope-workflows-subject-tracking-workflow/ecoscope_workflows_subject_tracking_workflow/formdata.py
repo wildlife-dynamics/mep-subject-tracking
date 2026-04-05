@@ -286,6 +286,10 @@ class RetrieveLdxDb(BaseModel):
     input_method: Union[DownloadFile, LocalFile] = Field(..., title="Input Method")
 
 
+class LoadLandDxDatabase(BaseModel):
+    retrieve_ldx_db: Optional[RetrieveLdxDb] = Field(None, title="")
+
+
 class FormData(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -312,7 +316,11 @@ class FormData(BaseModel):
     Subject_Group: Optional[SubjectGroup] = Field(
         None, alias="Subject Group", description="Choose subject group to analyze"
     )
-    retrieve_ldx_db: Optional[RetrieveLdxDb] = Field(None, title="Load landDx database")
+    Load_landDx_database: Optional[LoadLandDxDatabase] = Field(
+        None,
+        alias="Load landDx database",
+        description="Load the landDx geodatabase and prepare it for mapping. The geodatabase will be filtered to include only protected areas (Community Conservancies, National Reserves, National Parks) and styled for visualization.",
+    )
     custom_trajs_filter: Optional[CustomTrajsFilter] = Field(
         None, title="Trajectory Segment Filter"
     )

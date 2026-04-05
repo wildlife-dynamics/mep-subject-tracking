@@ -131,6 +131,9 @@ from ecoscope_workflows_ext_custom.tasks.io import html_to_png as html_to_png
 from ecoscope_workflows_ext_custom.tasks.results import (
     create_geojson_layer as create_geojson_layer,
 )
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     to_quantity as to_quantity,
 )
@@ -259,7 +262,8 @@ def main(params: Params):
         "zip_etd_with_traj": ["determine_seasonal_windows", "split_traj_by_group"],
         "add_season_labels": ["zip_etd_with_traj"],
         "generate_mcp": ["split_traj_by_group"],
-        "apply_etd_colormap": ["generate_etd"],
+        "reproject_etd": ["generate_etd"],
+        "apply_etd_colormap": ["reproject_etd"],
         "generate_home_range_layers": ["apply_etd_colormap"],
         "combined_ldx_home_range_layers": [
             "create_ldx_styled_layers",
@@ -274,7 +278,8 @@ def main(params: Params):
         "merge_homerange_widgets": ["create_home_range_widgets"],
         "seasonal_home_range": ["add_season_labels"],
         "convert_season_to_string": ["seasonal_home_range"],
-        "apply_seasonal_colormap": ["convert_season_to_string"],
+        "reproject_seasonal_home_range": ["convert_season_to_string"],
+        "apply_seasonal_colormap": ["reproject_seasonal_home_range"],
         "generate_season_layers": ["apply_seasonal_colormap"],
         "create_mcp_polygon_layer": ["generate_mcp"],
         "zip_season_mcp_layer": ["create_mcp_polygon_layer", "generate_season_layers"],
@@ -1886,6 +1891,29 @@ def main(params: Params):
                 "argvalues": DependsOn("split_traj_by_group"),
             },
         ),
+        "reproject_etd": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_etd")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_etd") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("generate_etd"),
+            },
+        ),
         "apply_etd_colormap": Node(
             async_task=apply_color_map.validate()
             .set_task_instance_id("apply_etd_colormap")
@@ -1908,7 +1936,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("generate_etd"),
+                "argvalues": DependsOn("reproject_etd"),
             },
         ),
         "generate_home_range_layers": Node(
@@ -2182,6 +2210,29 @@ def main(params: Params):
                 "argvalues": DependsOn("seasonal_home_range"),
             },
         ),
+        "reproject_seasonal_home_range": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_seasonal_home_range")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_seasonal_home_range") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("convert_season_to_string"),
+            },
+        ),
         "apply_seasonal_colormap": Node(
             async_task=apply_color_map.validate()
             .set_task_instance_id("apply_seasonal_colormap")
@@ -2207,7 +2258,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("convert_season_to_string"),
+                "argvalues": DependsOn("reproject_seasonal_home_range"),
             },
         ),
         "generate_season_layers": Node(

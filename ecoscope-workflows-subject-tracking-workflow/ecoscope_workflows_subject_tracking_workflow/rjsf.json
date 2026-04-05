@@ -321,26 +321,36 @@
         }
       }
     },
-    "retrieve_ldx_db": {
-      "additionalProperties": false,
-      "properties": {
-        "input_method": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/DownloadFile"
-            },
-            {
-              "$ref": "#/$defs/LocalFile"
-            }
-          ],
-          "title": "Input Method"
-        }
-      },
-      "required": [
-        "input_method"
-      ],
+    "Load landDx database": {
       "type": "object",
-      "title": "Load landDx database"
+      "description": "Load the landDx geodatabase and prepare it for mapping. The geodatabase will be filtered to include only protected areas (Community Conservancies, National Reserves, National Parks) and styled for visualization.",
+      "ecoscope:task_group": true,
+      "properties": {
+        "retrieve_ldx_db": {
+          "additionalProperties": false,
+          "properties": {
+            "input_method": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/DownloadFile"
+                },
+                {
+                  "$ref": "#/$defs/LocalFile"
+                }
+              ],
+              "title": "Input Method",
+              "default": {
+                "url": "https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0"
+              }
+            }
+          },
+          "required": [
+            "input_method"
+          ],
+          "type": "object",
+          "title": ""
+        }
+      }
     },
     "custom_trajs_filter": {
       "additionalProperties": false,
@@ -523,7 +533,7 @@
       "er_client_name",
       "gee_project_name",
       "Subject Group",
-      "retrieve_ldx_db",
+      "Load landDx database",
       "custom_trajs_filter",
       "gdf_bounding_extent"
     ]

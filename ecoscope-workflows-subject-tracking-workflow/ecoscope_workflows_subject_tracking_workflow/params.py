@@ -302,7 +302,7 @@ class Params(BaseModel):
         None, title="Connect to earth engine"
     )
     subject_group_var: Optional[SubjectGroupVar] = Field(None, title="")
-    retrieve_ldx_db: Optional[RetrieveLdxDb] = Field(None, title="Load landDx database")
+    retrieve_ldx_db: Optional[RetrieveLdxDb] = Field(None, title="")
     custom_trajs_filter: Optional[CustomTrajsFilter] = Field(
         None, title="Trajectory Segment Filter"
     )
