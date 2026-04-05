@@ -33,6 +33,10 @@ rjsf-overrides:
     Subject Group.properties.subject_group_var.properties.var.title: Subject Group Name
     Subject Group.properties.subject_group_var.properties.var.default: Elephants
 
+    # Load landDx database — pre-fill the standard Dropbox URL
+    Load landDx database.properties.retrieve_ldx_db.properties.input_method.default:
+      url: "https://www.dropbox.com/scl/fi/v9maw2jeg1zptv68qtpv3/landDx.gpkg?rlkey=kez5vsbxkgha2emfy5kzwa5n1&st=98v4anq3&dl=0"
+
   $defs:
     # Restrict category options to Subject Name ,Subject Sex and Subject Subtype
     ValueGrouper.properties.index_name.oneOf:
@@ -89,11 +93,15 @@ workflow:
         task: set_string_var
 
   # Please note that this workflow only uses ldx db 
-  - name: Load landDx database
-    id: retrieve_ldx_db
-    task: get_file_path 
-    partial: 
-      output_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
+  - title: Load landDx database
+    type: task-group
+    description: Load the landDx geodatabase and prepare it for mapping. The geodatabase will be filtered to include only protected areas (Community Conservancies, National Reserves, National Parks) and styled for visualization.
+    tasks:
+      - name: null
+        id: retrieve_ldx_db
+        task: get_file_path 
+        partial: 
+          output_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
   
   - name: Load ldx gpkg 
     id: load_ldx 
@@ -741,6 +749,15 @@ workflow:
       argnames: gdf 
       argvalues: ${{ workflow.split_traj_by_group.return }}
   
+  - name: Reproject etd to wgs84 
+    id: reproject_etd 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues:
+      argnames: gdf
+      argvalues: ${{ workflow.generate_etd.return }}
+
   - name: Apply colormap to home range percentiles 
     id: apply_etd_colormap 
     task: apply_color_map
@@ -750,7 +767,7 @@ workflow:
       colormap: RdYlGn
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.generate_etd.return }}
+      argvalues: ${{ workflow.reproject_etd.return }}
 
   - name: Create home range layers 
     id: generate_home_range_layers 
@@ -887,6 +904,15 @@ workflow:
       argnames: df
       argvalues: ${{ workflow.seasonal_home_range.return }}
 
+  - name: Reproject seasonal home range gdf to wgs84 
+    id: reproject_seasonal_home_range 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues: 
+      argnames: gdf 
+      argvalues: ${{ workflow.convert_season_to_string.return }}
+
   - name: Apply colormap to seasonal home range
     id: apply_seasonal_colormap 
     task: apply_color_map
@@ -898,7 +924,7 @@ workflow:
         - "#ff7f50"
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.convert_season_to_string.return }}
+      argvalues: ${{ workflow.reproject_seasonal_home_range.return }}
 
   - name: Create seasonal home range layers
     id: generate_season_layers 
