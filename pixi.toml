@@ -19,7 +19,7 @@ pip="*"
 hatch-vcs="*"
 
 [feature.compile.dependencies]
-ecoscope-workflows-ext-mep = "0.0.10.*"
+ecoscope-workflows-ext-mep = "0.13.0.*"
 ecoscope-workflows-ext-mnc = "0.0.7.*"
 ecoscope-workflows-ext-ste = "0.0.18.*"
 ecoscope-workflows-ext-big-life = "0.0.8.*"
