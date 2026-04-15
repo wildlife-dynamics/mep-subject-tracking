@@ -385,6 +385,21 @@
       "required": [],
       "type": "object",
       "title": "Zoom to gdf extent"
+    },
+    "download_sect_templates": {
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "title": "Url",
+          "type": "string",
+          "description": "URL to download the file from"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object",
+      "title": "Download mep subject templates"
     }
   },
   "$defs": {
@@ -505,7 +520,8 @@
       "subject_group_var",
       "retrieve_ldx_db",
       "custom_trajs_filter",
-      "gdf_bounding_extent"
+      "gdf_bounding_extent",
+      "download_sect_templates"
     ]
   },
   "additionalProperties": false

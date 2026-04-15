@@ -4309,7 +4309,6 @@ def main(params: Params):
             )
             .set_executor("lithops"),
             partial={
-                "url": "https://www.dropbox.com/scl/fi/4symf1385ksnh8mu8sx9v/mep_subject_template_two.docx?rlkey=v5f26c3aiadaasnilhc76owgr&st=wz6mce8l&dl=0",
                 "output_path": os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
                 "overwrite_existing": False,
                 "unzip": False,

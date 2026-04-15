@@ -216,6 +216,13 @@ class GdfBoundingExtent(BaseModel):
     )
 
 
+class DownloadSectTemplates(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    url: str = Field(..., description="URL to download the file from", title="Url")
+
+
 class TimezoneInfo(BaseModel):
     label: str = Field(..., title="Label")
     tzCode: str = Field(..., title="Tzcode")
@@ -308,4 +315,7 @@ class Params(BaseModel):
     )
     gdf_bounding_extent: Optional[GdfBoundingExtent] = Field(
         None, title="Zoom to gdf extent"
+    )
+    download_sect_templates: Optional[DownloadSectTemplates] = Field(
+        None, title="Download mep subject templates"
     )

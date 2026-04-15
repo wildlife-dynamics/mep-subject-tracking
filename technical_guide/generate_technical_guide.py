@@ -188,7 +188,7 @@ story += [
             ["ecoscope-workflows-ext-ste",     "0.0.18.*",  "ecoscope-workflows-custom"],
             ["ecoscope-workflows-ext-mnc",     "0.0.7.*",   "ecoscope-workflows-custom"],
             ["ecoscope-workflows-ext-big-life","0.0.8.*",   "ecoscope-workflows-custom"],
-            ["ecoscope-workflows-ext-mep",     "0.0.10.*",  "ecoscope-workflows-custom"],
+            ["ecoscope-workflows-ext-mep",     "0.0.12.*",  "ecoscope-workflows-custom"],
         ],
         [6.5*cm, 3*cm, W - 9.5*cm],
     ),
@@ -206,8 +206,10 @@ story += [
     ),
     sp(6),
     h2("2.3  LandDx database"),
-    p("The workflow loads a local LandDx GeoPackage file via "
-      "<b>get_file_path</b>. The path is resolved from "
+    p("The workflow obtains the LandDx GeoPackage via <b>get_file_path</b>, "
+      "which accepts either a <b>URL download</b> or a <b>local file path</b>. "
+      "The default input method is pre-filled with the standard Dropbox URL "
+      "(landDx.gpkg). The output path is resolved from "
       "<b>ECOSCOPE_WORKFLOWS_RESULTS</b>. Three polygon types are retained:"),
     make_table(
         [
@@ -836,7 +838,7 @@ story += [
             ["ecoscope-workflows-ext-ste",     "0.0.18.*"],
             ["ecoscope-workflows-ext-mnc",     "0.0.7.*"],
             ["ecoscope-workflows-ext-big-life","0.0.8.*"],
-            ["ecoscope-workflows-ext-mep",     "0.0.10.*"],
+            ["ecoscope-workflows-ext-mep",     "0.0.12.*"],
         ],
         [8*cm, W - 8*cm],
     ),
