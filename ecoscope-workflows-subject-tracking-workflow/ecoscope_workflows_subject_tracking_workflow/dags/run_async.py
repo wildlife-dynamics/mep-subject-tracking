@@ -4421,6 +4421,7 @@ def main(params: Params):
                 "output_dir": os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
                 "filename": None,
                 "validate_images": True,
+                "missing_threshold": 7,
             }
             | (params_dict.get("persist_subject_report_context") or {}),
             method="mapvalues",

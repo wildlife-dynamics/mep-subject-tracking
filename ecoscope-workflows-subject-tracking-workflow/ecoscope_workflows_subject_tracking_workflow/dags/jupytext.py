@@ -5479,6 +5479,7 @@ persist_subject_report_context = (
         output_dir=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
         filename=None,
         validate_images=True,
+        missing_threshold=7,
         **persist_subject_report_context_params,
     )
     .mapvalues(argnames=["context"], argvalues=create_subject_context)
