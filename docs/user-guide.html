@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MEP Subject Tracking — User Guide</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="data:text/css,body%20%7B%20font%2Dfamily%3A%20%2Dapple%2Dsystem%2C%20BlinkMacSystemFont%2C%20%22Segoe%20UI%22%2C%20sans%2Dserif%3B%20max%2Dwidth%3A%20860px%3B%20margin%3A%2040px%20auto%3B%20padding%3A%200%2024px%3B%20color%3A%20%231a1a1a%3B%20line%2Dheight%3A%201%2E6%3B%20%7D%0Ah1%20%7B%20font%2Dsize%3A%202em%3B%20border%2Dbottom%3A%202px%20solid%20%232d6a4f%3B%20padding%2Dbottom%3A%2010px%3B%20color%3A%20%232d6a4f%3B%20%7D%0Ah2%20%7B%20font%2Dsize%3A%201%2E4em%3B%20color%3A%20%232d6a4f%3B%20margin%2Dtop%3A%202em%3B%20border%2Dbottom%3A%201px%20solid%20%23b7e4c7%3B%20padding%2Dbottom%3A%204px%3B%20%7D%0Ah3%20%7B%20font%2Dsize%3A%201%2E1em%3B%20color%3A%20%2340916c%3B%20margin%2Dtop%3A%201%2E5em%3B%20%7D%0Ah4%20%7B%20font%2Dsize%3A%201em%3B%20color%3A%20%2352b788%3B%20%7D%0Aimg%20%7B%20max%2Dwidth%3A%20100%25%3B%20border%3A%201px%20solid%20%23d8e8d8%3B%20border%2Dradius%3A%206px%3B%20margin%3A%2016px%200%3B%20box%2Dshadow%3A%200%202px%208px%20rgba%280%2C0%2C0%2C0%2E1%29%3B%20%7D%0Apre%20%7B%20background%3A%20%23f4f4f4%3B%20padding%3A%2012px%2016px%3B%20border%2Dradius%3A%206px%3B%20font%2Dsize%3A%200%2E9em%3B%20overflow%2Dx%3A%20auto%3B%20border%2Dleft%3A%204px%20solid%20%2352b788%3B%20%7D%0Acode%20%7B%20background%3A%20%23f0f7f0%3B%20padding%3A%202px%205px%3B%20border%2Dradius%3A%203px%3B%20font%2Dsize%3A%200%2E9em%3B%20%7D%0Apre%20code%20%7B%20background%3A%20none%3B%20padding%3A%200%3B%20%7D%0Atable%20%7B%20border%2Dcollapse%3A%20collapse%3B%20width%3A%20100%25%3B%20margin%3A%2016px%200%3B%20font%2Dsize%3A%200%2E95em%3B%20%7D%0Ath%20%7B%20background%3A%20%232d6a4f%3B%20color%3A%20white%3B%20padding%3A%2010px%2014px%3B%20text%2Dalign%3A%20left%3B%20%7D%0Atd%20%7B%20padding%3A%209px%2014px%3B%20border%2Dbottom%3A%201px%20solid%20%23d8e8d8%3B%20%7D%0Atr%3Anth%2Dchild%28even%29%20td%20%7B%20background%3A%20%23f0f7f0%3B%20%7D%0Ahr%20%7B%20border%3A%20none%3B%20border%2Dtop%3A%201px%20solid%20%23d8e8d8%3B%20margin%3A%202em%200%3B%20%7D%0Ablockquote%20%7B%20border%2Dleft%3A%204px%20solid%20%2352b788%3B%20margin%3A%201em%200%3B%20padding%3A%208px%2016px%3B%20background%3A%20%23f0f7f0%3B%20color%3A%20%23444%3B%20border%2Dradius%3A%200%204px%204px%200%3B%20%7D%0A" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+</header>
+<h1 id="mep-subject-tracking-user-guide">MEP Subject Tracking — User Guide</h1>
+<p>This guide walks you through configuring and running the MEP Subject Tracking workflow, which ingests GPS telemetry and collar events from EarthRanger, derives movement ecology metrics via Google Earth Engine, and produces a comprehensive per-subject tracking report for collared wildlife in the Mara ecosystem.</p>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>The workflow delivers, for each subject in the selected group:</p>
+<ul>
+<li><strong>3 maps</strong> — speed map, ETD home range map, and seasonal home range map with MCP overlay, each overlaid with Community Conservancy, National Reserve, and National Park land-use layers</li>
+<li><strong>4 time-series plots</strong> — Net Square Displacement (NSD), speed, collar event timeline, and MCP asymptote</li>
+<li><strong>5 dashboard metrics</strong> — MCP area, ETD area, distance travelled, max displacement, and night/day ratio</li>
+<li><strong>3 dashboard tables</strong> — subject info, subject stats, and land-use occupancy (protected area, agricultural, Kenya, and unprotected use)</li>
+<li><strong>4 CSV tables</strong> — subject info, subject stats, occupancy, and seasonal windows</li>
+<li>A <strong>Word doc</strong> — cover page (with organisation logo) plus one fully populated section per subject, merged into a single report</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Before running the workflow, ensure you have:</p>
+<ul>
+<li>Access to an <strong>EarthRanger</strong> instance with subject group observations and MEP collar events (<code>mep_collar_check</code>, <code>mep_collaring</code>, <code>mep_source_failure</code>) logged for the analysis period</li>
+<li>Access to a <strong>Google Earth Engine</strong> service account with a private key in JSON format</li>
+</ul>
+<blockquote>
+<p>The LandDX land-use database is downloaded automatically from a fixed source URL — no manual setup is required.</p>
+</blockquote>
+<hr />
+<h2 id="step-by-step-configuration">Step-by-Step Configuration</h2>
+<h3 id="step-1-add-the-workflow-template">Step 1 — Add the Workflow Template</h3>
+<p>In the workflow runner, go to <strong>Workflow Templates</strong> and click <strong>Add Workflow Template</strong>. Paste the GitHub repository URL into the <strong>Github Link</strong> field:</p>
+<pre><code>https://github.com/wildlife-dynamics/mep-subject-tracking.git</code></pre>
+<p>Then click <strong>Add Template</strong>.</p>
+<hr />
+<h3 id="step-2-configure-connections">Step 2 — Configure Connections</h3>
+<p>Navigate to <strong>Data Sources</strong> and click <strong>Connect</strong>. A dialog will appear prompting you to <strong>Select Data Source Type</strong>. This workflow requires two connections:</p>
+<table>
+<colgroup>
+<col style="width: 65%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Data Source Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>EarthRanger</strong></td>
+<td>Pull subject group observations, subject metadata, and MEP collar events</td>
+</tr>
+<tr class="even">
+<td><strong>Google Earth Engine</strong></td>
+<td>Compute NDVI-based wet/dry seasonal windows per subject home range</td>
+</tr>
+</tbody>
+</table>
+<p>Select <strong>EarthRanger</strong> first and complete Step 3, then repeat and select <strong>Google Earth Engine</strong> for Step 4.</p>
+<hr />
+<h3 id="step-3-add-an-earthranger-connection">Step 3 — Add an EarthRanger Connection</h3>
+<p>After selecting <strong>EarthRanger</strong> in Step 2, fill in the connection form:</p>
+<ul>
+<li><strong>Data Source Name</strong> — a label to identify this connection</li>
+<li><strong>EarthRanger URL</strong> — your instance URL (e.g. <code>your-site.pamdas.org</code>)</li>
+<li><strong>EarthRanger Username</strong> and <strong>EarthRanger Password</strong></li>
+</ul>
+<blockquote>
+<p>Credentials are not validated at setup time. Any authentication errors will appear when the workflow runs.</p>
+</blockquote>
+<p>Click <strong>Connect</strong> to save.</p>
+<hr />
+<h3 id="step-4-add-a-google-earth-engine-connection">Step 4 — Add a Google Earth Engine Connection</h3>
+<p>After selecting <strong>Google Earth Engine</strong> in Step 2, fill in the connection form:</p>
+<ul>
+<li><strong>Data Source Name</strong> — a label to identify this connection</li>
+<li><strong>Private Key</strong> — click <strong>Browse</strong> to select your GEE service account private key file (JSON format)</li>
+</ul>
+<blockquote>
+<p>To generate a private key, follow the instructions in the <a href="https://developers.google.com/earth-engine/guides/service_account">Setup Guide</a>. The key is stored encrypted and used only to authenticate with Google Earth Engine.</p>
+</blockquote>
+<p>Click <strong>Connect</strong> to save.</p>
+<hr />
+<h3 id="step-5-select-the-workflow">Step 5 — Select the Workflow</h3>
+<p>After the template is added, it appears in the <strong>Workflow Templates</strong> list as <strong>mep-subject-tracking</strong>. Click it to open the workflow configuration form.</p>
+<blockquote>
+<p>The card may show <strong>Initializing…</strong> briefly while the environment is set up.</p>
+</blockquote>
+<hr />
+<h3 id="step-6-set-workflow-details-analysis-time-range-and-base-maps">Step 6 — Set Workflow Details, Analysis Time Range, and Base Maps</h3>
+<p>The configuration form opens with three sections at the top.</p>
+<p><strong>Set workflow details</strong></p>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Workflow Name</td>
+<td>A short name to identify this run</td>
+</tr>
+<tr class="even">
+<td>Workflow Description</td>
+<td>Optional notes (e.g. subject group, site, or reporting period)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Define analysis time range</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Timezone</td>
+<td>Select the local timezone (e.g. <code>Africa/Nairobi UTC+03:00</code>)</td>
+</tr>
+<tr class="even">
+<td>Since</td>
+<td>Start date and time of the analysis period</td>
+</tr>
+<tr class="odd">
+<td>Until</td>
+<td>End date and time of the analysis period</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Configure base map layers</strong></p>
+<p>Choose the tile layer(s) to use as the base map background for the speed map, home range map, and seasonal home range map.</p>
+<p>All GPS relocations, collar events, and GEE seasonal windows are fetched within the configured time range.</p>
+<hr />
+<h3 id="step-7-connect-to-earthranger-connect-to-earth-engine-and-set-subject-group">Step 7 — Connect to EarthRanger, Connect to Earth Engine, and Set Subject Group</h3>
+<p>Scroll down to configure the next three sections.</p>
+<p><strong>Connect to EarthRanger</strong></p>
+<p>Select the EarthRanger data source configured in Step 3 from the <strong>Data Source</strong> dropdown (e.g. <code>Mara Elephant Project</code>).</p>
+<p><strong>Connect to EarthEngine</strong></p>
+<p>Select the Google Earth Engine data source configured in Step 4 from the <strong>Data Source</strong> dropdown.</p>
+<p><strong>Subject Group</strong></p>
+<p>Enter the name of the EarthRanger subject group to analyse in the <strong>Subject Group Name</strong> field (default: <code>Elephants</code>). Each subject in the group will be processed individually.</p>
+<blockquote>
+<p>The LandDX land-use database (Community Conservancies, National Reserves, National Parks) is downloaded automatically and does not require configuration.</p>
+</blockquote>
+<hr />
+<h3 id="step-8-trajectory-segment-filter">Step 8 — Trajectory Segment Filter</h3>
+<p>Scroll down to configure the final section.</p>
+<p><strong>Trajectory Segment Filter</strong></p>
+<p>These thresholds control how raw GPS fixes are joined into trajectory segments. Segments that fall outside the limits are broken at that point, preventing implausible long-distance jumps from being included.</p>
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 31%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Min Length Meters</td>
+<td>—</td>
+<td>Minimum segment length to retain (leave blank to skip)</td>
+</tr>
+<tr class="even">
+<td>Max Length Meters</td>
+<td>5000</td>
+<td>Maximum segment length in metres</td>
+</tr>
+<tr class="odd">
+<td>Min Time Secs</td>
+<td>—</td>
+<td>Minimum time between fixes (leave blank to skip)</td>
+</tr>
+<tr class="even">
+<td>Max Time Secs</td>
+<td>17340</td>
+<td>Maximum time between consecutive fixes in seconds (~4.8 hours)</td>
+</tr>
+<tr class="odd">
+<td>Min Speed Kmhr</td>
+<td>-0.01</td>
+<td>Minimum speed threshold (slightly negative to allow rounding errors)</td>
+</tr>
+<tr class="even">
+<td>Max Speed Kmhr</td>
+<td>9</td>
+<td>Maximum plausible speed in km/h</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Map zoom/extent padding around each subject’s data is fixed internally (25% expansion) and is not user-configurable.</p>
+</blockquote>
+<p>Once all parameters are set, click <strong>Submit</strong>.</p>
+<hr />
+<h2 id="running-the-workflow">Running the Workflow</h2>
+<p>Once submitted, the runner will:</p>
+<ol type="1">
+<li>Download the LandDX database and create Community Conservancy, National Reserve, and National Park map layers.</li>
+<li>Fetch GPS observations from EarthRanger for the specified time range and subject group, convert them to the selected timezone, and derive relocations.</li>
+<li>Fetch subject metadata from EarthRanger for every subject present in the relocations, and compute subject maturity (6-month threshold).</li>
+<li>Fetch MEP collar events (<code>mep_collar_check</code>, <code>mep_collaring</code>, <code>mep_source_failure</code>).</li>
+<li>Split subject metadata, relocations, and events by subject name.</li>
+<li>Convert relocations to trajectories using the configured segment filter; classify speed into 6 bins.</li>
+<li>Compute ETD home range and NDVI-derived seasonal windows via Google Earth Engine per subject.</li>
+<li>Generate the speed map, home range map, and seasonal home range map per subject.</li>
+<li>Generate NSD, speed, collar event, and MCP asymptote plots per subject.</li>
+<li>Compute movement statistics and land-use occupancy per subject.</li>
+<li>Download the Word report templates and organisation logo, and populate one section per subject.</li>
+<li>Merge all sections with the cover page into a single Word doc (<code>overall_report.docx</code>).</li>
+<li>Assemble the interactive dashboard and save all outputs to the directory specified by <code>ECOSCOPE_WORKFLOWS_RESULTS</code>.</li>
+</ol>
+<hr />
+<h2 id="output-files">Output Files</h2>
+<p>All outputs are written to <code>$ECOSCOPE_WORKFLOWS_RESULTS/</code>. Files marked with <code>&lt;subject&gt;</code> are produced once per subject in the group.</p>
+<h3 id="per-subject-outputs">Per-subject outputs</h3>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&lt;subject&gt;_speedmap.html</code> / <code>.png</code></td>
+<td>Speed map — path coloured by 6-bin speed classification</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_homerange.html</code> / <code>.png</code></td>
+<td>ETD home range map — percentile contours 50–99.9th</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;_seasonal_home_range.html</code> / <code>.png</code></td>
+<td>Seasonal home range map with MCP outline overlay</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_nsd_seasonal_plot.html</code> / <code>.png</code></td>
+<td>Net Square Displacement time-series with season bands</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;_speed_seasonal_plot.html</code> / <code>.png</code></td>
+<td>Speed time-series with season bands</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_collared_subject_plot.html</code> / <code>.png</code></td>
+<td>Collar event timeline plot</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;_mcp_asymptote_plot.html</code> / <code>.png</code></td>
+<td>MCP area growth curve</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_subject_info.csv</code> / <code>_subject_info_table.html</code></td>
+<td>Subject metadata (name, sex, DOB, status, region, notes, bio, distribution)</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;_subject_stats.csv</code> / <code>_subject_stats_table.html</code></td>
+<td>Movement stats: maturity, days/years tracked, MCP, ETD, distance, max displacement, night/day ratio</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_subject_occupancy.csv</code> / <code>_subject_occupancy_table.html</code></td>
+<td>Land-use occupancy percentages by category</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;_seasonal_windows.csv</code></td>
+<td>GEE-derived wet/dry season date windows</td>
+</tr>
+<tr class="even">
+<td><code>&lt;subject&gt;_profile.png</code></td>
+<td>Subject profile photo from EarthRanger</td>
+</tr>
+<tr class="odd">
+<td><code>&lt;subject&gt;.docx</code></td>
+<td>Populated per-subject Word report section</td>
+</tr>
+</tbody>
+</table>
+<h3 id="combined-outputs">Combined outputs</h3>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>relocations.parquet</code></td>
+<td>All subjects’ cleaned GPS relocations</td>
+</tr>
+<tr class="even">
+<td><code>subjects.parquet</code></td>
+<td>All subjects’ metadata, including maturity flag</td>
+</tr>
+<tr class="odd">
+<td><code>events.parquet</code></td>
+<td>All fetched MEP collar events</td>
+</tr>
+<tr class="even">
+<td><code>trajectories.parquet</code></td>
+<td>All subjects’ classified trajectory segments</td>
+</tr>
+<tr class="odd">
+<td><code>subject_tracking_cover_page.docx</code></td>
+<td>Report cover page (organisation logo, subject count, report period)</td>
+</tr>
+<tr class="even">
+<td><code>overall_report.docx</code></td>
+<td>Final merged Word doc (cover + all subject sections)</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

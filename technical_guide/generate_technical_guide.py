@@ -123,7 +123,7 @@ story += [
     p("Per-subject home range, speed, seasonal, and occupancy analysis", SUBTITLE),
     sp(4),
     p(f"Generated {date.today().strftime('%B %d, %Y')}", META),
-    p("Workflow id: <b>subject_tracking</b>", META),
+    p("Workflow id: <b>mep_collared_report</b>", META),
     PageBreak(),
 ]
 
@@ -133,24 +133,27 @@ story += [
 story += [
     h1("1. Overview"),
     hr(),
-    p("The <b>subject_tracking</b> workflow fetches GPS relocations for a named "
-      "subject group from EarthRanger, derives trajectories, and produces a "
-      "comprehensive per-subject movement ecology report. Google Earth Engine "
+    p("The <b>mep_collared_report</b> workflow fetches GPS relocations and MEP "
+      "collar events for a named subject group from EarthRanger, derives "
+      "trajectories, and produces a comprehensive per-subject movement "
+      "ecology report overlaid on LandDX land-use layers. Google Earth Engine "
       "is used to detect NDVI-based seasonal windows that stratify all spatial "
       "and temporal analyses."),
     sp(4),
     p("For each subject the workflow delivers:"),
     bullet("3 maps — speed map, ETD home range map, and seasonal home range "
-           "map (with MCP overlay)"),
+           "map (with MCP overlay), each overlaid with Community Conservancy, "
+           "National Reserve, and National Park land-use layers"),
     bullet("4 time-series plots — Net Square Displacement (NSD), speed, "
            "collar event, and MCP asymptote"),
-    bullet("10 single-value dashboard metrics — protected area use (national, "
-           "community), agricultural land use, Kenya use, unprotected use, "
-           "MCP area, ETD area, distance travelled, max displacement, and "
-           "night/day ratio"),
+    bullet("5 single-value dashboard metrics — MCP area, ETD area, distance "
+           "travelled, max displacement, and night/day ratio"),
+    bullet("3 dashboard table widgets — subject info, subject stats, and "
+           "land-use occupancy"),
     bullet("4 CSV tables — subject information, subject stats, occupancy, "
            "and seasonal windows"),
-    bullet("A Word mapbook — cover page + one populated section per subject"),
+    bullet("A Word mapbook — cover page (with organisation logo) + one "
+           "populated section per subject, merged into a single report"),
     sp(6),
     h2("Output summary"),
     make_table(
@@ -164,7 +167,8 @@ story += [
             ["Collar event plots",     "1 per subject", "Collar check/collaring/source failure events on timeline"],
             ["MCP asymptote plots",    "1 per subject", "MCP area growth curve"],
             ["Subject CSV tables",     "4 per subject", "info, stats, occupancy, seasonal windows"],
-            ["Dashboard SV widgets",   "10 per subject","Occupancy %, area, distance, and ratio metrics"],
+            ["Dashboard SV widgets",   "5 per subject", "MCP, ETD, distance, max displacement, night/day ratio"],
+            ["Dashboard table widgets","3 per subject", "Subject info, subject stats, subject occupancy"],
             ["Word mapbook",           "1 total",       "Cover page + per-subject report sections merged"],
         ],
         [4*cm, 2.5*cm, W - 6.5*cm],
@@ -182,13 +186,12 @@ story += [
     make_table(
         [
             ["Package", "Version", "Channel"],
-            ["ecoscope-workflows-core",        "0.22.17.*", "ecoscope-workflows"],
-            ["ecoscope-workflows-ext-ecoscope","0.22.17.*", "ecoscope-workflows"],
-            ["ecoscope-workflows-ext-custom",  "0.0.39.*",  "ecoscope-workflows-custom"],
-            ["ecoscope-workflows-ext-ste",     "0.0.18.*",  "ecoscope-workflows-custom"],
-            ["ecoscope-workflows-ext-mnc",     "0.0.7.*",   "ecoscope-workflows-custom"],
-            ["ecoscope-workflows-ext-big-life","0.0.8.*",   "ecoscope-workflows-custom"],
-            ["ecoscope-workflows-ext-mep",     "0.0.12.*",  "ecoscope-workflows-custom"],
+            ["ecoscope-platform",              ">=2.15.0, <2.16.0", "ecoscope-workflows"],
+            ["ecoscope-workflows-ext-custom",  "0.1.0rc14.*",       "ecoscope-workflows-custom"],
+            ["ecoscope-workflows-ext-ste",     "0.0.0rc1.*",        "ecoscope-workflows-custom"],
+            ["ecoscope-workflows-ext-mep",     "1.0.0.*",           "ecoscope-workflows-custom"],
+            ["pydeck",                         "0.9.2",             "conda-forge"],
+            ["opentelemetry-sdk",              ">=1.20.0, <2.0.0",  "conda-forge"],
         ],
         [6.5*cm, 3*cm, W - 9.5*cm],
     ),
@@ -206,23 +209,26 @@ story += [
     ),
     sp(6),
     h2("2.3  LandDx database"),
-    p("The workflow obtains the LandDx GeoPackage via <b>get_file_path</b>, "
-      "which accepts either a <b>URL download</b> or a <b>local file path</b>. "
-      "The default input method is pre-filled with the standard Dropbox URL "
-      "(landDx.gpkg). The output path is resolved from "
-      "<b>ECOSCOPE_WORKFLOWS_RESULTS</b>. Three polygon types are retained:"),
+    p("The workflow downloads the LandDX GeoPackage automatically via "
+      "<b>fetch_and_persist_file</b> (ecoscope_workflows_ext_ste) from a "
+      "fixed Dropbox URL (land_dx.gpkg) — this is not user-configurable. "
+      "The output path is resolved from <b>ECOSCOPE_WORKFLOWS_RESULTS</b>. "
+      "The loaded GeoDataFrame is filtered by <b>type</b> into three "
+      "separate DataFrames, each rendered as its own "
+      "<b>create_geojson_layer</b> with its own legend entry:"),
     make_table(
         [
-            ["LandDx type", "Fill color (RGB)", "Hex", "Opacity"],
-            ["Community Conservancy", "[166, 182, 151]", "#a6b697", "0.15"],
-            ["National Reserve",      "[136, 167, 142]", "#88a78e", "0.15"],
-            ["National Park",         "[17, 86, 49]",    "#115631", "0.15"],
+            ["LandDx type", "Fill/line color (RGBA)", "Hex", "Opacity", "Line width"],
+            ["Community Conservancy", "[166, 182, 151, 255]", "#a6b697", "0.15", "1.55 px"],
+            ["National Reserve",      "[136, 167, 142, 255]", "#88a78e", "0.15", "1.55 px"],
+            ["National Park",         "[17, 86, 49, 255]",    "#115631", "0.15", "1.55 px"],
         ],
-        [4.5*cm, 4*cm, 2.5*cm, 2*cm],
+        [4*cm, 4*cm, 2*cm, 2*cm, 2*cm],
     ),
-    p("A text label layer is also created from the <b>name</b> column "
-      "(Arial, size 1000 m, min 40 px / max 75 px, billboard: true) to "
-      "identify each polygon on the map."),
+    p("Each of the three land-use layers is combined with the per-subject "
+      "speed, home range, and seasonal home range layers via "
+      "<b>combine_deckgl_map_layers</b> before rendering, so all three maps "
+      "share the same land-use context."),
     sp(6),
     h2("2.4  Base maps"),
     p("Base map tiles are configured by the user via <b>set_base_maps_pydeck</b>. "
@@ -252,30 +258,38 @@ story += [
       "and EarthRanger client."),
     sp(6),
     h2("3.1  Subject metadata"),
+    p("Subjects are fetched by ID rather than by group, using the distinct "
+      "subject IDs already present in the relocations (see 3.3):"),
     make_table(
         [
             ["Step", "Task", "Detail"],
-            ["1", "get_subject_df",
-             "Fetch all subjects in the group (include_inactive: true, "
+            ["1", "dataframe_column_unique (ext_mep)",
+             "Extract unique subject_id values from the mapped relocations"],
+            ["2", "get_subjects (ext_mep)",
+             "Fetch subjects by ID (include_inactive: true, "
              "max_ids_per_request: 50, raise_on_empty: false)"],
-            ["2", "normalize_json_column",
+            ["3", "normalize_json_column",
              "Flatten the 'additional' JSON column; skip if column absent"],
-            ["3", "transform_columns",
-             "Drop 7 columns (url, image_url, common_name, content_type, "
-             "external_id, tm_animal_id, external_name); rename ~12 columns "
+            ["4", "map_columns",
+             "Drop 15 columns (content_type, common_name, image_url, url, "
+             "tracks_available, last_position_status/date/position, "
+             "device_status_properties, hex, subject_type, subject_subtype, "
+             "user, sex, and raw additional__ id fields); rename ~11 columns "
              "(id→groupby_col, name→subject_name, hex→hex_color, "
-             "additional__Bio→subject_bio, additional__sex→subject_sex, "
-             "additional__DOB→date_of_birth, etc.)"],
+             "additional__rgb→rgb, additional__Bio→subject_bio, "
+             "additional__sex→subject_sex, additional__DOB→date_of_birth, "
+             "additional__notes→notes, additional__status→status, "
+             "additional__region→region, additional__country→country, "
+             "additional__id_photo→photo, additional__distribution→distribution)"],
         ],
         [1.2*cm, 4*cm, W - 5.2*cm],
     ),
     sp(6),
     h2("3.2  Subject maturity"),
-    p("<b>compute_maturity</b> is called with <b>months_duration: 6</b> "
-      "against the cleaned subject metadata and relocations GeoDataFrame "
-      "(time_column: fixtime). This flags subjects that have been tracked "
-      "for at least 6 months, used downstream in occupancy and stats "
-      "calculations."),
+    p("<b>compute_subject_maturity</b> is called with <b>months_duration: 6</b> "
+      "against the cleaned subject metadata and relocations GeoDataFrame. "
+      "This flags subjects that have been tracked for at least 6 months, "
+      "surfaced as the <b>Mature</b> field in the subject stats table."),
     sp(6),
     h2("3.3  GPS relocations"),
     make_table(
@@ -283,15 +297,21 @@ story += [
             ["Step", "Task", "Detail"],
             ["1", "get_subjectgroup_observations",
              "Fetch observations for the subject group (filter: clean, "
-             "time_range, raise_on_empty: false, include_details: false)"],
-            ["2", "process_relocations",
-             "Retain 9 columns: groupby_col, fixtime, junk_status, geometry, "
-             "extra__subject__name, extra__subject__hex, extra__subject__sex, "
-             "extra__created_at, extra__subject__subject_subtype. "
-             "Filter 3 invalid coordinate pairs: (180,90), (0,0), (1,1)"],
-            ["3", "map_columns",
-             "Rename extra__ prefix columns: name→subject_name, "
-             "hex→hex_color, sex→subject_sex, etc."],
+             "time_range, raise_on_empty: false, include_details: false, "
+             "include_subjectsource_details: false)"],
+            ["2", "get_timezone_from_time_range → convert_values_to_timezone",
+             "Convert the fixtime column to the analysis timezone"],
+            ["3", "process_relocations",
+             "Retain 15 columns including extra__subject_id, extra__id, "
+             "extra__location, extra__created_at, extra__recorded_at, "
+             "extra__source, extra__exclusion_flags, "
+             "extra__subject__updated_at, extra__subject__name, "
+             "extra__subject__hex, extra__subject__sex, "
+             "extra__subject__subject_subtype, geometry, groupby_col, "
+             "fixtime, junk_status. Filter 3 invalid coordinate pairs: "
+             "(180,90), (0,0), (1,1)"],
+            ["4", "map_columns",
+             "Rename name→subject_name"],
         ],
         [1.2*cm, 4*cm, W - 5.2*cm],
     ),
@@ -301,7 +321,8 @@ story += [
     bullet("<b>persist_subject_photo</b> — downloads the subject's profile "
            "photo from EarthRanger and saves as PNG (overwrite_existing: true)"),
     bullet("<b>process_subject_information</b> — formats subject metadata "
-           "(maxlen: 1000) and persists as CSV"),
+           "(maxlen: 1000), persists as CSV, and is transposed into a "
+           "\"Subject Info\" table widget for the dashboard"),
     PageBreak(),
 ]
 
@@ -323,9 +344,10 @@ story += [
         [5*cm, W - 5*cm],
     ),
     sp(4),
-    p("10 columns are retained: id, time, event_type, event_category, "
-      "reported_by, serial_number, geometry, event_details, priority, "
-      "priority_label. The event_details JSON column is normalised and "
+    p("9 columns are retained: id, time, event_type, event_category, "
+      "reported_by, serial_number, geometry, event_details, priority_label "
+      "(force_point_geometry: true, include_null_geometry: true). "
+      "The event_details JSON column is normalised and "
       "the following fields are renamed:"),
     make_table(
         [
@@ -462,11 +484,13 @@ story += [
     h1("7. Maps"),
     hr(),
     p("All three map types are rendered per subject via <b>mapvalues</b>. "
-      "Each map overlays the LandDx styled polygon layers and text label "
-      "layer. Map view state is auto-fit to the subject's data extent using "
-      "<b>custom_view_state_deck_gdf</b> (buffer: 0.375). Screenshots use "
-      "<b>zoom_map_and_screenshot</b> with wait_for_timeout: 40000 ms to "
-      "allow tile rendering."),
+      "Each map overlays the three LandDx land-use layers (2.3). Map extent "
+      "is fixed internally — <b>envelope_gdf</b> (expansion_factor: 1.25) "
+      "pads the subject's data extent, and <b>compute_view_state_from_gdf</b> "
+      "(pitch: 0, bearing: 0, max_zoom: 15) derives the view state; neither "
+      "is user-configurable. Screenshots use <b>html_to_png</b> with "
+      "wait_for_timeout: 10 ms, device_scale_factor: 2.0, "
+      "max_concurrent_pages: 1, full_page: false."),
     sp(6),
     h2("7.1  Speed map"),
     p("Built from trajectory segments as a <b>create_path_layer</b>. "
@@ -477,7 +501,7 @@ story += [
             ["Parameter", "Value"],
             ["Layer type",         "Path (line segments)"],
             ["Color column",       "speed_bins_colormap (6-bin RdYlGn)"],
-            ["Line width",         "2.55 px (min 2 px / max 8 px)"],
+            ["Line width",         "2.25 px (min 2 px / max 8 px)"],
             ["Opacity",            "0.45"],
             ["Cap / joint style",  "Rounded"],
             ["Screenshot size",    "1280 × 720 px"],
@@ -573,26 +597,34 @@ story += [
     hr(),
     h2("9.1  Subject statistics"),
     p("<b>compute_subject_stats</b> derives movement metrics per subject "
-      "by combining the ETD GDF and trajectory GDF (grouped by subject_name). "
-      "Results are persisted as CSV:"),
+      "by combining the ETD GDF, trajectory GDF, and maturity-flagged "
+      "subject metadata (grouped by subject_name). Results are persisted "
+      "as CSV and rendered as a \"Subject Stats\" table widget:"),
     make_table(
         [
-            ["Metric", "Unit", "Description"],
-            ["MCP",               "km²", "Minimum Convex Polygon area"],
-            ["ETD",               "km²", "Elliptical Time Density 99.9th percentile area"],
+            ["Field", "Unit", "Description"],
+            ["subject_id",        "—",   "Subject identifier"],
+            ["mature",            "—",   "Whether the subject meets the 6-month maturity threshold"],
+            ["mcp",               "km²", "Minimum Convex Polygon area"],
+            ["etd",               "km²", "Elliptical Time Density 99.9th percentile area"],
+            ["time_tracked_days", "days","Days between first and last fix"],
+            ["time_tracked_years","years","Years between first and last fix"],
             ["distance_travelled","km",  "Total path length of trajectory"],
             ["max_displacement",  "km",  "Maximum distance from first fix"],
             ["night_day_ratio",   "—",   "Ratio of nocturnal to diurnal fixes"],
         ],
         [4*cm, 1.5*cm, W - 5.5*cm],
     ),
+    p("MCP, ETD, distance travelled, max displacement, and night/day ratio "
+      "are also summed across the subject group (dataframe_column_sum) and "
+      "exposed individually as single-value dashboard widgets."),
     sp(6),
     h2("9.2  Regional occupancy"),
     p("<b>compute_subject_occupancy</b> intersects the subject's ETD polygon "
       "with LandDx region templates in planar CRS ESRI:53042 to compute "
       "the proportion of home range falling in each land category. "
       "LandDx polygons are first indexed via "
-      "<b>build_template_region_lookup</b> and "
+      "<b>build_ldx_template_region_lookup</b> and "
       "<b>compute_template_regions</b>."),
     make_table(
         [
@@ -605,8 +637,9 @@ story += [
         ],
         [4*cm, 1.5*cm, W - 5.5*cm],
     ),
-    p("All five occupancy columns are exposed as single-value dashboard "
-      "widgets (decimal_places: 2) and written to CSV per subject."),
+    p("All five occupancy columns are written to CSV per subject and "
+      "rendered together as a single \"Subject Occupancy\" table widget "
+      "on the dashboard (not as individual single-value widgets)."),
     PageBreak(),
 ]
 
@@ -620,12 +653,16 @@ story += [
       "page and one section page per subject."),
     sp(6),
     h2("10.1  Cover page"),
+    p("<b>prepare_cover_metadata</b> assembles the cover context, including "
+      "the organisation logo downloaded from Dropbox "
+      "(MEP-logo-dark-linear.png):"),
     make_table(
         [
             ["Template", "cer_cover_page.docx (downloaded from Dropbox)"],
-            ["Output", "mep_context.docx"],
-            ["Fields", "Subject count (unique subjects on trajectories), "
-                       "report_period (time range), prepared_by='Ecoscope'"],
+            ["Output", "subject_tracking_cover_page.docx"],
+            ["Fields", "org_logo_path (downloaded MEP logo), "
+                       "report_period (time range), prepared_by='Ecoscope', "
+                       "time_generated_format='%Y-%m-%d %H:%M:%S'"],
         ],
         [3*cm, W - 3*cm],
         header_row=False,
@@ -635,35 +672,24 @@ story += [
     make_table(
         [
             ["Template", "mep_subject_template_two.docx (downloaded from Dropbox)"],
-            ["Output", "<subject>.docx (one file per subject, validate_images: true)"],
+            ["Output", "<subject>.docx (one file per subject)"],
         ],
         [3*cm, W - 3*cm],
         header_row=False,
     ),
     sp(4),
-    p("Each section is populated by <b>create_mep_subject_context</b> with "
-      "the following 11 assets (assembled via zip_groupbykey):"),
-    make_table(
-        [
-            ["Argument", "Source"],
-            ["profile_photo_path",         "persist_subject_photo (.png)"],
-            ["subject_info_path",           "persist_subject_info (.csv)"],
-            ["speedmap_path",               "convert_speedmap_png (1280×720)"],
-            ["homerange_map_path",          "convert_homerange_png (602×855)"],
-            ["seasonal_homerange_map_path", "convert_season_png (602×855)"],
-            ["nsd_plot_path",               "convert_nsd_png (2238×450)"],
-            ["speed_plot_path",             "convert_speed_png (2238×450)"],
-            ["collared_event_plot_path",    "convert_events_png (2238×450)"],
-            ["mcp_plot_path",               "convert_mcp_png (2238×450)"],
-            ["subject_stats_table_path",    "persist_subject_stats (.csv)"],
-            ["subject_occupancy_table_path","persist_subject_occupancy (.csv)"],
-        ],
-        [5.5*cm, W - 5.5*cm],
-    ),
+    p("Each section is populated by <b>generate_subject_report</b>, which "
+      "takes the per-subject split DataFrame directly (mapvalues over "
+      "split_subject_by_group) and resolves the subject's photo, plots, "
+      "maps, and CSV tables from <b>ECOSCOPE_WORKFLOWS_RESULTS</b> by "
+      "filename convention, rather than being wired explicitly via "
+      "zip_groupbykey."),
     sp(6),
     h2("10.3  Merge"),
-    p("<b>merge_mapbook_files</b> merges the cover page with all per-subject "
-      "section documents into a single output file."),
+    p("<b>merge_docx_documents</b> merges the cover page "
+      "(subject_tracking_cover_page.docx) with all per-subject section "
+      "documents (order_by: name) into a single output file: "
+      "<b>overall_report.docx</b>."),
     PageBreak(),
 ]
 
@@ -673,21 +699,16 @@ story += [
 story += [
     h1("11. Dashboard Widgets"),
     hr(),
-    p("The final <b>gather_dashboard</b> call assembles 17 widget groups "
+    p("The final <b>gather_dashboard</b> call assembles 15 widget groups "
       "into an interactive Ecoscope dashboard. All widgets are per-subject "
       "grouped views merged via <b>merge_widget_views</b>."),
     sp(6),
-    h2("11.1  Single-value widgets (10)"),
+    h2("11.1  Single-value widgets (5)"),
     make_table(
         [
             ["Widget title", "Source column", "Unit"],
-            ["National protected area use", "national_pa_use",   "%"],
-            ["Community protected area use","community_pa_use",   "%"],
-            ["Agricultural land use",       "crop_raid_percent", "%"],
-            ["Kenya use",                   "kenya_use",         "%"],
-            ["Unprotected use",             "unprotected",       "%"],
-            ["MCP Area",                    "MCP",               "km²"],
-            ["ETD",                         "ETD",               "km²"],
+            ["MCP Area",                    "mcp",               "km²"],
+            ["ETD",                         "etd",               "km²"],
             ["Distance Travelled",          "distance_travelled","km²"],
             ["Max Displacement",            "max_displacement",  "km²"],
             ["Night Day Ratio",             "night_day_ratio",   "—"],
@@ -706,6 +727,17 @@ story += [
             ["Speed",                 "persist_speed_html_urls"],
             ["Collared Subject Plot", "persist_collared_subject_plots"],
             ["MCP Asymptote",         "persist_mcp_html_urls"],
+        ],
+        [5.5*cm, W - 5.5*cm],
+    ),
+    sp(6),
+    h2("11.3  Table widgets (3)"),
+    make_table(
+        [
+            ["Widget title", "Source"],
+            ["Subject Info",       "persist_subject_info_table_html"],
+            ["Subject Stats",      "persist_subject_stats_table_html"],
+            ["Subject Occupancy",  "persist_subject_occ_table_html"],
         ],
         [5.5*cm, W - 5.5*cm],
     ),
@@ -739,22 +771,27 @@ story += [
              "Collar event timeline plot (2238×450 px)"],
             ["<subject>_mcp_asymptote_plot.html / .png",
              "MCP area asymptote plot (2238×450 px)"],
-            ["<subject>_subject_info.csv",
-             "Subject metadata (name, sex, DOB, status, region, etc.)"],
-            ["<subject>_subject_stats.csv",
-             "Movement stats: MCP, ETD, distance, max displacement, night/day ratio"],
-            ["<subject>_subject_occupancy.csv",
+            ["<subject>_subject_info.csv / _subject_info_table.html",
+             "Subject metadata (name, sex, DOB, status, region, notes, bio, distribution)"],
+            ["<subject>_subject_stats.csv / _subject_stats_table.html",
+             "Movement stats: maturity, days/years tracked, MCP, ETD, distance, max displacement, night/day ratio"],
+            ["<subject>_subject_occupancy.csv / _subject_occupancy_table.html",
              "Occupancy percentages by land category"],
             ["<subject>_seasonal_windows.csv",
              "GEE-derived wet/dry season date windows"],
-            ["<subject>_profile_photo.png",
+            ["<subject>_profile.png",
              "Subject profile photo downloaded from EarthRanger"],
-            # word report
-            ["mep_context.docx",
-             "Cover page (subject count, report period, prepared by)"],
-            ["<subject>_section.docx",
+            ["<subject>.docx",
              "Per-subject populated Word section"],
-            ["<merged_mapbook>.docx",
+            # combined
+            ["relocations.parquet / subjects.parquet",
+             "All subjects' cleaned relocations / metadata with maturity flag"],
+            ["events.parquet / trajectories.parquet",
+             "All fetched MEP collar events / classified trajectory segments"],
+            # word report
+            ["subject_tracking_cover_page.docx",
+             "Cover page (organisation logo, report period, prepared by)"],
+            ["overall_report.docx",
              "Final merged Word mapbook (cover + all subject sections)"],
         ],
         [7*cm, W - 7*cm],
@@ -781,44 +818,46 @@ story += [
     sp(6),
     h2("13.2  mapvalues fan-out"),
     p("The workflow uses <b>mapvalues</b> extensively to run per-subject "
-      "processing in parallel. The fan-out starts at <b>split_traj_by_group</b> "
-      "and <b>split_subject_by_group</b>, which partition data by subject_name. "
-      "Downstream tasks receive one data slice per subject and run "
-      "independently. Key fan-out chains:"),
+      "processing in parallel. The fan-out starts at <b>split_traj_by_group</b>, "
+      "<b>split_subject_by_group</b>, and <b>split_events_by_group</b>, which "
+      "partition data by subject_name. Downstream tasks receive one data "
+      "slice per subject and run independently. Key fan-out chains:"),
     bullet("split_traj_by_group → sort_trajs_by_speed → apply_speed_colormap "
-           "→ filter_speedmap_gdf → generate_speedmap_layers → draw_speedmap"),
+           "→ filter_speed_cols → generate_speedmap_layers → draw_speedmap"),
     bullet("split_traj_by_group → generate_etd → determine_seasonal_windows "
-           "→ add_season_labels → seasonal_home_range"),
+           "(GEE) → add_season_labels → seasonal_home_range"),
     bullet("split_subject_by_group → download_profile_pic, "
-           "download_subject_info"),
+           "download_subject_info, subject_track_doc"),
     bullet("zip_traj_etd_gdf → generate_subject_stats"),
     bullet("zip_etd_subject_df → process_subject_occupancy"),
     sp(6),
     h2("13.3  zip_groupbykey"),
-    p("<b>zip_groupbykey</b> is used to pair multiple per-subject sequences "
+    p("<b>groupbykey</b> is used to pair multiple per-subject sequences "
       "by their shared key (subject_name) before passing to mapvalues tasks. "
       "Examples:"),
     bullet("zip_etd_with_traj — pairs seasonal windows with trajectory slices "
            "for season labelling"),
     bullet("zip_relocs_with_seasons — pairs seasonal windows with relocation "
            "slices for NSD/speed/collared/MCP plots"),
-    bullet("zip_hr_value, zip_speed_value, zip_seasonal_value — pair view "
-           "states with HTML file paths for zoom_map_and_screenshot"),
-    bullet("group_subject_report_context — zips 11 per-subject asset paths "
-           "into tuples for Word template population"),
+    bullet("zip_speedmap_with_viewstate, zip_hr_with_viewstate, "
+           "zip_seasonal_hr_with_viewstate — pair combined map layers with "
+           "view state for draw_map"),
+    bullet("zip_traj_etd_gdf, zip_etd_subject_df — pair trajectory/ETD/"
+           "subject slices for stats and occupancy calculations"),
     sp(6),
     h2("13.4  Screenshot timing"),
+    p("All map and plot screenshots use a uniform "
+      "<b>html_to_png</b> configuration: wait_for_timeout: 10 ms, "
+      "device_scale_factor: 2.0, max_concurrent_pages: 1, full_page: false."),
     make_table(
         [
-            ["wait_for_timeout", "Applied to", "Width × Height"],
-            ["40000 ms", "All map screenshots "
-                         "(speed map, home range, seasonal home range)",
-             "Speed: 1280×720 / HR: 602×855 / Season: 602×855"],
-            ["5 ms", "All chart screenshots "
-                     "(NSD, speed, collared events, MCP asymptote)",
-             "2238×450 (all plots)"],
+            ["Output", "Width × Height"],
+            ["Speed map",                    "1280 × 720 px"],
+            ["Home range map",               "602 × 855 px"],
+            ["Seasonal home range map",      "602 × 855 px"],
+            ["NSD / speed / collared / MCP plots", "2238 × 450 px"],
         ],
-        [3*cm, 5*cm, W - 8*cm],
+        [7*cm, W - 7*cm],
     ),
     PageBreak(),
 ]
@@ -832,13 +871,12 @@ story += [
     make_table(
         [
             ["Package", "Version pinned"],
-            ["ecoscope-workflows-core",        "0.22.17.*"],
-            ["ecoscope-workflows-ext-ecoscope","0.22.17.*"],
-            ["ecoscope-workflows-ext-custom",  "0.0.39.*"],
-            ["ecoscope-workflows-ext-ste",     "0.0.18.*"],
-            ["ecoscope-workflows-ext-mnc",     "0.0.7.*"],
-            ["ecoscope-workflows-ext-big-life","0.0.8.*"],
-            ["ecoscope-workflows-ext-mep",     "0.0.12.*"],
+            ["ecoscope-platform",              ">=2.15.0, <2.16.0"],
+            ["ecoscope-workflows-ext-custom",  "0.1.0rc14.*"],
+            ["ecoscope-workflows-ext-ste",     "0.0.0rc1.*"],
+            ["ecoscope-workflows-ext-mep",     "1.0.0.*"],
+            ["pydeck",                         "0.9.2"],
+            ["opentelemetry-sdk",              ">=1.20.0, <2.0.0"],
         ],
         [8*cm, W - 8*cm],
     ),
