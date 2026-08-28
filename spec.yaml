@@ -909,7 +909,7 @@ workflow:
       config:
         full_page: false
         device_scale_factor: 2.0
-        wait_for_timeout: 10
+        wait_for_timeout: 40000
         max_concurrent_pages: 1
         width: 1280
         height: 720
@@ -1154,7 +1154,7 @@ workflow:
       config:
         full_page: false
         device_scale_factor: 2.0
-        wait_for_timeout: 10
+        wait_for_timeout: 40000
         max_concurrent_pages: 1
         width: 602
         height: 855
@@ -1367,7 +1367,7 @@ workflow:
       config:
         full_page: false
         device_scale_factor: 2.0
-        wait_for_timeout: 10
+        wait_for_timeout: 40000
         max_concurrent_pages: 1
         width: 602
         height: 855
