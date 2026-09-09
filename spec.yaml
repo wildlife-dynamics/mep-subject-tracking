@@ -43,12 +43,12 @@ rjsf-overrides:
 
 workflow:
   # set workflow details 
-  - name: Set workflow details
+  - name: Workflow Details
     id: workflow_details
     task: set_workflow_details
 
   # define time range 
-  - name: Define analysis time range 
+  - name: Time Range
     id: time_range 
     task: set_time_range 
     
@@ -61,7 +61,7 @@ workflow:
         - index_name: subject_name
   
   # set basemaps
-  - name: Configure base map layers 
+  - name: Configure Base Map Layers
     id: configure_base_maps 
     task: set_base_maps_pydeck
 
@@ -71,7 +71,7 @@ workflow:
     task: set_er_connection 
   
   # connect to earthengine 
-  - name: Connect to EarthEngine
+  - name: Connect to Google Earth Engine
     id: gee_project_name
     task: set_gee_connection 
   
