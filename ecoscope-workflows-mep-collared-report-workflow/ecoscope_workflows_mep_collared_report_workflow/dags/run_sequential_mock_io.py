@@ -835,7 +835,6 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
                 "additional__DOB": "date_of_birth",
                 "additional__notes": "notes",
                 "additional__status": "status",
-                "additional__region": "region",
                 "additional__country": "country",
                 "additional__id_photo": "photo",
                 "additional__distribution": "distribution",
@@ -886,7 +885,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             df=subject_maturity_df,
             root_path=os.environ["ECOSCOPE_WORKFLOWS_RESULTS"],
             filename="subjects",
-            filetype="parquet",
+            filetype="csv",
             **(params.get("persist_subjects") or {}),
         )
         .call()
@@ -2769,8 +2768,8 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .with_tracing()
         .skipif(
             conditions=[
-                any_is_empty_df,
                 any_dependency_skipped,
+                any_keyed_iterables_are_skips,
             ],
             unpack_depth=1,
         )
@@ -2922,8 +2921,8 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .with_tracing()
         .skipif(
             conditions=[
-                any_is_empty_df,
                 any_dependency_skipped,
+                any_keyed_iterables_are_skips,
             ],
             unpack_depth=1,
         )
@@ -3073,8 +3072,8 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .with_tracing()
         .skipif(
             conditions=[
-                any_is_empty_df,
                 any_dependency_skipped,
+                any_keyed_iterables_are_skips,
             ],
             unpack_depth=1,
         )
@@ -3225,8 +3224,8 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .with_tracing()
         .skipif(
             conditions=[
-                any_is_empty_df,
                 any_dependency_skipped,
+                any_keyed_iterables_are_skips,
             ],
             unpack_depth=1,
         )

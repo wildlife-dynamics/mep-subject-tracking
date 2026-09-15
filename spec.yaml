@@ -364,7 +364,7 @@ workflow:
         "additional__DOB": "date_of_birth",
         "additional__notes": "notes",
         "additional__status": "status",
-        "additional__region": "region",
+       # "additional__region": "region",
         "additional__country": "country",
         "additional__id_photo": "photo",
         "additional__distribution": "distribution"
@@ -389,7 +389,7 @@ workflow:
       df: ${{ workflow.subject_maturity_df.return }}
       root_path: ${{ env.ECOSCOPE_WORKFLOWS_RESULTS }}
       filename: subjects
-      filetype: parquet
+      filetype: csv
 
   # Split subject df by group
   - name: split subjects df by group
@@ -1431,6 +1431,11 @@ workflow:
 
   - name: Zip nsd filename with text
     id: zip_nsd_filename
+    skipif:
+      conditions:
+        - any_dependency_skipped
+        - any_keyed_iterables_are_skips
+      unpack_depth: 1
     task: groupbykey
     partial:
       iterables:
@@ -1517,6 +1522,11 @@ workflow:
 
   - name: Zip speed plot filename with text
     id: zip_speed_plot_filename
+    skipif:
+      conditions:
+        - any_dependency_skipped
+        - any_keyed_iterables_are_skips
+      unpack_depth: 1
     task: groupbykey
     partial:
       iterables:
@@ -1603,6 +1613,11 @@ workflow:
 
   - name: Zip collared filename with text
     id: zip_collared_filename
+    skipif:
+      conditions:
+        - any_dependency_skipped
+        - any_keyed_iterables_are_skips
+      unpack_depth: 1
     task: groupbykey
     partial:
       iterables:
@@ -1689,6 +1704,11 @@ workflow:
 
   - name: Zip mcp plot filename with text
     id: zip_mcp_plot_filename
+    skipif:
+      conditions:
+        - any_dependency_skipped
+        - any_keyed_iterables_are_skips
+      unpack_depth: 1
     task: groupbykey
     partial:
       iterables:
