@@ -1,21 +1,10 @@
-name:  # Title Case, e.g. "My Ecoscope Workflow Template"
-
-# at least one author is required
+name: MEP Subject Tracking
 author:
-  - name: ""
-    organization: ""
-    email: ""
+  - name: Tevin Temu
+    organization: Wildlife Dynamics
+    email: tevin@wildlifedynamics.com
 
-description: # A short description
-
-# todo: add example
-theory: "" # optional
-
-# todo: add example
-output_comment: "" # optional
-
-# optional
-# example
-# citation: 
-#   - Wu, Y. et al. (2025). "Monitoring elephant spatial patterns with Ecoscope workflows."
-citation: [] 
+description: Generates a per-subject tracking report for Mara Elephant Project collared wildlife from EarthRanger GPS telemetry and collar events, using Google Earth Engine for seasonal windows, and produces speed, home range, and seasonal home range maps, movement time-series plots, movement statistics, and land-use occupancy, on an interactive dashboard and in a Word report.
+theory: "GPS relocations are converted to trajectory segments, with segments of unrealistic length, duration, or speed (above 9 km/h by default) dropped, and speed is classified into 6 bins for the speed map. Home ranges are estimated with Elliptical Time Density (ETD) as 50th to 99.9th percentile contours and with a Minimum Convex Polygon (MCP), whose area growth over time is shown as an asymptote curve. Wet and dry season windows are derived from NDVI over each subject's home range in Google Earth Engine and shown as bands on Net Square Displacement (NSD) and speed time series. Statistics include days tracked, MCP and ETD area, distance travelled, maximum displacement, night/day movement ratio, and maturity (6-month threshold), and land-use occupancy is the share of locations falling in protected, agricultural, and unprotected areas from the LandDX database."
+output_comment: "For each subject, outputs speed, ETD home range, and seasonal home range maps over community conservancy, national reserve, and national park layers, NSD, speed, collar event, and MCP asymptote plots, and subject info, movement stats, land-use occupancy, and seasonal window tables (CSV and HTML), with HTML and PNG copies of every map and plot. Also writes combined relocations, subjects, collar events, and trajectories (Parquet), a dashboard with MCP area, ETD area, distance, max displacement, and night/day ratio metrics, and a Word report (overall_report.docx) with a cover page and one section per subject."
+citation: []
