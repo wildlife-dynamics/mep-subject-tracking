@@ -131,7 +131,7 @@ Select the Google Earth Engine data source configured in Step 4 from the **Data 
 
 **Subject Group**
 
-Enter the name of the EarthRanger subject group to analyse in the **Subject Group Name** field (default: `Elephants`). Each subject in the group will be processed individually.
+Pick the subject group to analyse from the **Subject Group Name** drop-down, which lists the subject groups on the data source chosen under **Connect to EarthRanger** (default: `Elephants`). Each subject in the group will be processed individually.
 
 > The LandDX land-use database (Community Conservancies, National Reserves, National Parks) is downloaded automatically and does not require configuration.
 
