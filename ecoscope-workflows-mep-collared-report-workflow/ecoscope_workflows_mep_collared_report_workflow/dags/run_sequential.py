@@ -32,18 +32,22 @@ from ecoscope.platform.tasks.preprocessing import (
 from ecoscope.platform.tasks.preprocessing import (
     relocations_to_trajectory as relocations_to_trajectory,
 )
+from ecoscope.platform.tasks.results import create_geojson_layer as create_geojson_layer
 from ecoscope.platform.tasks.results import (
     create_map_widget_single_view as create_map_widget_single_view,
 )
+from ecoscope.platform.tasks.results import create_path_layer as create_path_layer
 from ecoscope.platform.tasks.results import (
     create_single_value_widget_single_view as create_single_value_widget_single_view,
 )
 from ecoscope.platform.tasks.results import (
     create_table_widget_single_view as create_table_widget_single_view,
 )
+from ecoscope.platform.tasks.results import draw_map as draw_map
 from ecoscope.platform.tasks.results import draw_table as draw_table
 from ecoscope.platform.tasks.results import gather_dashboard as gather_dashboard
 from ecoscope.platform.tasks.results import merge_widget_views as merge_widget_views
+from ecoscope.platform.tasks.results import set_base_maps as set_base_maps
 from ecoscope.platform.tasks.skip import (
     any_dependency_skipped as any_dependency_skipped,
 )
@@ -74,16 +78,6 @@ from ecoscope.platform.tasks.transformation import sort_values as sort_values
 from ecoscope.platform.tasks.transformation import transpose as transpose
 from ecoscope_workflows_ext_custom.tasks.io import html_to_png as html_to_png
 from ecoscope_workflows_ext_custom.tasks.io import load_df as load_df
-from ecoscope_workflows_ext_custom.tasks.results import (
-    create_geojson_layer as create_geojson_layer_1,
-)
-from ecoscope_workflows_ext_custom.tasks.results import (
-    create_path_layer as create_path_layer_1,
-)
-from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map_1
-from ecoscope_workflows_ext_custom.tasks.results import (
-    set_base_maps_pydeck as set_base_maps_pydeck,
-)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     to_quantity as to_quantity,
 )
@@ -234,7 +228,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     configure_base_maps = (
-        task(set_base_maps_pydeck)
+        task(set_base_maps)
         .validate()
         .set_task_instance_id("configure_base_maps")
         .handle_errors()
@@ -420,7 +414,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     create_community_layer = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("create_community_layer")
         .handle_errors()
@@ -435,6 +429,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             geodataframe=filter_community_cons,
             data_url=None,
+            tooltip_columns=["type"],
             layer_style={
                 "filled": True,
                 "stroked": True,
@@ -461,7 +456,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     create_reserve_layer = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("create_reserve_layer")
         .handle_errors()
@@ -476,6 +471,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             geodataframe=filter_national_res,
             data_url=None,
+            tooltip_columns=["type"],
             layer_style={
                 "filled": True,
                 "stroked": True,
@@ -502,7 +498,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     create_park_layer = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("create_park_layer")
         .handle_errors()
@@ -517,6 +513,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             geodataframe=filter_national_park,
             data_url=None,
+            tooltip_columns=["type"],
             layer_style={
                 "filled": True,
                 "stroked": True,
@@ -563,6 +560,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             raise_on_empty=False,
             include_details=False,
             include_subjectsource_details=False,
+            include_subject_additional=False,
             **(params.get("subject_observations") or {}),
         )
         .call()
@@ -666,6 +664,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         .partial(
             df=subject_reloc,
             drop_columns=[],
+            duplicate_strategy="suffix",
             retain_columns=[],
             rename_columns={"name": "subject_name"},
             raise_if_not_found=True,
@@ -740,7 +739,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             name=None,
             updated_since=None,
             updated_until=None,
-            tracks=None,
+            tracks=False,
             ids=unique_subject_ids,
             max_ids_per_request=50,
             raise_on_empty=False,
@@ -786,6 +785,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[
                 "content_type",
                 "common_name",
@@ -1044,6 +1044,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=["status"],
             retain_columns=[],
             rename_columns={
@@ -1096,6 +1097,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={"0": "Value"},
@@ -1247,6 +1249,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            event_states=["resolved"],
             client=er_client_name,
             time_range=time_range,
             include_details=True,
@@ -1310,6 +1313,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={
@@ -1500,6 +1504,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             raise_if_not_found=False,
             df=classify_trajectories_speed_bins,
             drop_columns=[],
@@ -1633,7 +1638,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     generate_speedmap_layers = (
-        task(create_path_layer_1)
+        task(create_path_layer)
         .validate()
         .set_task_instance_id("generate_speedmap_layers")
         .handle_errors()
@@ -1647,6 +1652,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             data_url=None,
+            tooltip_columns=["subject_name", "speed_kmhr", "speed_bins"],
             layer_style={
                 "get_color": "speed_bins_colormap",
                 "get_width": 2.25,
@@ -1753,7 +1759,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     draw_speedmap = (
-        task(draw_map_1)
+        task(draw_map)
         .validate()
         .set_task_instance_id("draw_speedmap")
         .handle_errors()
@@ -1766,6 +1772,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            output_type="html",
             tile_layers=configure_base_maps,
             static=False,
             title=None,
@@ -2085,7 +2092,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     generate_home_range_layers = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("generate_home_range_layers")
         .handle_errors()
@@ -2099,6 +2106,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             data_url=None,
+            tooltip_columns=["percentile"],
             layer_style={
                 "filled": True,
                 "stroked": True,
@@ -2172,7 +2180,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     draw_home_range_map = (
-        task(draw_map_1)
+        task(draw_map)
         .validate()
         .set_task_instance_id("draw_home_range_map")
         .handle_errors()
@@ -2186,6 +2194,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             tile_layers=configure_base_maps,
+            output_type="html",
             static=False,
             title=None,
             max_zoom=10,
@@ -2381,7 +2390,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     generate_season_layers = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("generate_season_layers")
         .handle_errors()
@@ -2395,6 +2404,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             data_url=None,
+            tooltip_columns=["season"],
             layer_style={
                 "filled": True,
                 "stroked": True,
@@ -2424,7 +2434,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     create_mcp_polygon_layer = (
-        task(create_geojson_layer_1)
+        task(create_geojson_layer)
         .validate()
         .set_task_instance_id("create_mcp_polygon_layer")
         .handle_errors()
@@ -2438,6 +2448,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             data_url=None,
+            tooltip_columns=None,
             layer_style={
                 "filled": False,
                 "stroked": True,
@@ -2525,7 +2536,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
     )
 
     draw_seasonal_home_range_map = (
-        task(draw_map_1)
+        task(draw_map)
         .validate()
         .set_task_instance_id("draw_seasonal_home_range_map")
         .handle_errors()
@@ -2539,6 +2550,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
         )
         .partial(
             tile_layers=configure_base_maps,
+            output_type="html",
             static=False,
             title=None,
             max_zoom=10,
@@ -3417,6 +3429,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={
@@ -3470,6 +3483,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={"0": "Value"},
@@ -3759,6 +3773,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={
@@ -3808,6 +3823,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             unpack_depth=1,
         )
         .partial(
+            duplicate_strategy="suffix",
             drop_columns=[],
             retain_columns=[],
             rename_columns={"0": "Value"},
